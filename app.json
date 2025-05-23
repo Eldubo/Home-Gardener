@@ -3,6 +3,7 @@
     "name": "Home-Gardener",
     "slug": "Home-Gardener",
     "version": "1.0.0",
+    "entryPoint": "./main.js",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
