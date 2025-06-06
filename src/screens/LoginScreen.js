@@ -8,6 +8,7 @@ export default function Login({ navigation }) {
   const [error, setError] = useState(null);
 
   const handleLogin = async () => {
+    Alert.alert('Debug', `Email: ${email}\nPassword: ${password}`)
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,

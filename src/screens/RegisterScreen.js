@@ -1,4 +1,3 @@
-// src/screens/RegisterScreen.js
 import React, { useState } from 'react';
 import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { supabase } from '../lib/Supabase';
@@ -21,21 +20,14 @@ export default function RegisterScreen({ navigation }) {
       return;
     }
 
-    const user = data?.user;
+    const userId = data.user?.id ?? data.session?.user?.id ?? null;
 
-    if (!user) {
-      Alert.alert('Error', 'No se pudo obtener el usuario.');
-      return;
-    }
-
-    // 2. Insertar datos adicionales en la tabla Usuario
     const { error: insertError } = await supabase.from('Usuario').insert([
       {
-        ID: user.id, // usamos el ID generado por Auth como clave primaria
+        ID: userId, // puede ser null si el email necesita confirmación
         Nombre: nombre,
         Mail: email,
         Direccion: direccion,
-        Contraseña: password, // ⚠️ En producción deberías cifrarla, o no guardarla si ya usás Auth
       },
     ]);
 
@@ -44,16 +36,43 @@ export default function RegisterScreen({ navigation }) {
       return;
     }
 
-    Alert.alert('Registro exitoso', 'Revisá tu correo para confirmar tu cuenta.');
+    Alert.alert(
+      'Registro exitoso',
+      'Revisá tu correo para confirmar tu cuenta antes de iniciar sesión.'
+    );
+
     navigation.navigate('Login');
   };
 
   return (
     <View style={styles.container}>
-      <TextInput placeholder="Nombre" value={nombre} onChangeText={setNombre} style={styles.input} />
-      <TextInput placeholder="Dirección" value={direccion} onChangeText={setDireccion} style={styles.input} />
-      <TextInput placeholder="Email" value={email} onChangeText={setEmail} style={styles.input} keyboardType="email-address" autoCapitalize="none" />
-      <TextInput placeholder="Contraseña" value={password} onChangeText={setPassword} secureTextEntry style={styles.input} />
+      <TextInput
+        placeholder="Nombre"
+        value={nombre}
+        onChangeText={setNombre}
+        style={styles.input}
+      />
+      <TextInput
+        placeholder="Dirección"
+        value={direccion}
+        onChangeText={setDireccion}
+        style={styles.input}
+      />
+      <TextInput
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        style={styles.input}
+        keyboardType="email-address"
+        autoCapitalize="none"
+      />
+      <TextInput
+        placeholder="Contraseña"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        style={styles.input}
+      />
       <Button title="Registrarse" onPress={handleRegister} />
     </View>
   );
