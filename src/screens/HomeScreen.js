@@ -1,70 +1,54 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { supabase } from '../lib/Supabase';
 
 export default function HomeScreen() {
   const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadUser = async () => {
-      const userId = await AsyncStorage.getItem('user_id');
-      if (userId) {
-        const { data, error } = await supabase
-          .from('Usuario')
-          .select('*')
-          .eq('ID', userId)
-          .single();
+    const fetchProfile = async () => {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
 
-        if (error) {
-          console.log('Error al cargar usuario:', error);
-        } else {
-          setUserData(data);
-        }
+      try {
+        const res = await fetch('http://localhost:4000/profile', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!res.ok) throw new Error('Token inválido o expirado');
+
+        const data = await res.json();
+        setUserData(data);
+      } catch (e) {
+        console.log('Error al cargar perfil:', e);
+      } finally {
+        setLoading(false);
       }
     };
 
-    loadUser();
+    fetchProfile();
   }, []);
 
-  if (!userData)
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#2e7d32" />
-        <Text style={styles.loadingText}>Cargando...</Text>
-      </View>
-    );
+  if (loading) return <Text style={styles.loading}>Cargando...</Text>;
+
+  if (!userData) return <Text style={styles.error}>No hay datos de usuario</Text>;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.welcome}>Bienvenido, {userData.nombre || 'usuario'}</Text>
-      {/* muestra otras características */}
+      <Text style={styles.title}>Bienvenido, {userData.nombre || 'usuario'}</Text>
+      <Text>Email: {userData.email}</Text>
+      <Text>Dirección: {userData.direccion}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'center',
-    backgroundColor: '#f0f4f8',
-  },
-  welcome: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#2e7d32',
-    textAlign: 'center',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f0f4f8',
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 18,
-    color: '#555',
-  },
+  container: { flex: 1, padding: 20, justifyContent: 'center' },
+  loading: { textAlign: 'center', marginTop: 50 },
+  error: { color: 'red', textAlign: 'center', marginTop: 50 },
+  title: { fontSize: 24, marginBottom: 15 },
 });
