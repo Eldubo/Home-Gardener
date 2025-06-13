@@ -1,15 +1,28 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Image, StyleSheet } from 'react-native';
 
 export default function Navbar() {
   return (
     <View style={styles.navbar}>
-      <Text style={styles.title}>Mi App</Text>
+      <Image
+        source={require('../../assets/image1.png')}
+        style={styles.logo}
+        resizeMode="contain"
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  navbar: { height: 60, backgroundColor: '#6200ee', justifyContent: 'center', paddingHorizontal: 15 },
-  title: { color: 'white', fontSize: 20, fontWeight: 'bold' },
+  navbar: {
+    height: 120,
+    backgroundColor: '#a5d034',
+    justifyContent: 'center',
+    alignItems: 'stretch',
+    paddingHorizontal: 10,
+  },
+  logo: {
+    height: 75,
+    width: 100,
+  },
 });

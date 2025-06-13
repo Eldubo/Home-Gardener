@@ -69,7 +69,7 @@ export default function RegisterScreen({ navigation }) {
       <TextInput placeholder="Dirección" value={direccion} onChangeText={setDireccion} style={styles.input} />
       {error && <Text style={styles.error}>{error}</Text>}
       <Button title="Registrarme" onPress={handleRegister} />
-      <Text style={styles.link} onPress={() => navigation.navigate('LoginScreen')}>
+      <Text style={styles.link} onPress={() => navigation.navigate('Login')}>
         ¿Ya tienes cuenta? Inicia sesión
       </Text>
     </View>

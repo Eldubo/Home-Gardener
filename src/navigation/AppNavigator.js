@@ -10,6 +10,7 @@ import InfoScreen from '../screens/InfoScreen';
 import PerfilScreen from '../screens/PerfilScreen';
 import BienvenidoScreen from '../screens/BienvenidoScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
+import EditarPerfilScreen from '../screens/EditarPerfilScreen';
 
 import Layout from '../components/Layout';
 
@@ -59,6 +60,14 @@ export default function AppNavigator() {
         {props => (
           <Layout navigation={props.navigation}>
             <PerfilScreen {...props} />
+          </Layout>
+        )}
+      </Stack.Screen>
+
+      <Stack.Screen name="EditarPerfil">
+        {props => (
+          <Layout navigation={props.navigation}>
+            <EditarPerfilScreen {...props} />
           </Layout>
         )}
       </Stack.Screen>
