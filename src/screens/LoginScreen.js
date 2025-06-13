@@ -9,38 +9,57 @@ import {
 } from 'react-native';
 import { supabase } from '../lib/Supabase';
 import SHA256 from 'crypto-js/sha256';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function Login({ navigation }) {
+export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
 
   const handleLogin = async () => {
     setError(null);
-
+  
     try {
-      // Generar el hash con crypto-js
       const hashedPassword = SHA256(password).toString();
+  
+      const { data, error: queryError } = await supabase
+  .from('Usuario')
+  .select('*')
+  .eq('email', email.trim().toLowerCase())
+  .eq('password', hashedPassword)
+  .single();
 
-      // Llamar a Supabase (rename del error para no colisionar con el state)
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password: hashedPassword
-      });
+console.log('Usuario obtenido:', data);
 
-      if (authError) {
-        console.log('Error en login:', authError);
-        setError(authError.message);
-      } else {
-        console.log('Login exitoso:', data);
-        Alert.alert('Login exitoso', '¡Has iniciado sesión correctamente!');
-        navigation.navigate('HomeScreen');
-      }
+if (queryError || !data) {
+  setError('Email o contraseña incorrectos');
+  return;
+}
+
+const userId = data.ID;
+
+if (!userId) {
+  console.log('No se encontró el id del usuario:', data);
+  setError('Error interno: no se encontró el id del usuario.');
+  return;
+}
+
+try {
+  await AsyncStorage.setItem('user_id', userId.toString());
+} catch (storageError) {
+  console.log('Error guardando user_id en AsyncStorage:', storageError);
+}
+
+  
+      setPassword('');
+      Alert.alert('Bienvenido', `Hola, ${data.nombre || 'usuario'}!`);
+      navigation.navigate('Home');
+  
     } catch (e) {
       console.log('Excepción inesperada en handleLogin:', e);
-      setError('Ocurrió un error inesperado al generar el hash o contactar a Supabase');
+      setError('Ocurrió un error inesperado');
     }
-  };
+  };  
 
   return (
     <View style={styles.container}>
@@ -68,10 +87,9 @@ export default function Login({ navigation }) {
       <Text
         style={styles.forgot}
         onPress={() => {
-          /* lógica para recuperar contraseña */
+          navigation.navigate("ForgotPassword")
         }}
-      >
-        Olvidaste tu contraseña?
+      > ¿Olvidaste tu contraseña?
       </Text>
     </View>
   );
