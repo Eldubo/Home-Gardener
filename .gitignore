@@ -2,7 +2,7 @@
 
 # dependencies
 node_modules/
-.env
+.env.local
 
 # Expo
 .expo/
