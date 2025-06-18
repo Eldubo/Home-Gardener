@@ -33,7 +33,7 @@ export default {
       supabaseAnonKey: process.env.EXPO_SUPABASE_ANON_KEY,
     },
     plugins: [
-      'expo-secure-store',
+      'expo-secure-store'
     ]
   },
 };
