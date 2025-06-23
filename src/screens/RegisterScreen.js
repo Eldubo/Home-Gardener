@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { View, TextInput, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { supabase } from '../lib/Supabase';
 import SHA256 from 'crypto-js/sha256';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -50,8 +50,23 @@ export default function RegisterScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <TextInput placeholder="Nombre (opcional)" value={nombre} onChangeText={setNombre} style={styles.input} />
-      <TextInput placeholder="Email" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" style={styles.input} />
+      <Text style={styles.header}>Crear cuenta</Text>
+
+      <TextInput
+        placeholder="Nombre (opcional)"
+        value={nombre}
+        onChangeText={setNombre}
+        style={styles.input}
+      />
+
+      <TextInput
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
+        style={styles.input}
+      />
 
       <View style={styles.passwordContainer}>
         <TextInput
@@ -61,15 +76,31 @@ export default function RegisterScreen({ navigation }) {
           onChangeText={setPassword}
           style={[styles.input, { flex: 1 }]}
         />
-        <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.icon}>
-          <Icon name={showPassword ? "eye-off" : "eye"} size={24} color="gray" />
+        <TouchableOpacity
+          onPress={() => setShowPassword(!showPassword)}
+          style={styles.icon}
+        >
+          <Icon name={showPassword ? "eye-off" : "eye"} size={24} color="#888" />
         </TouchableOpacity>
       </View>
 
-      <TextInput placeholder="Dirección" value={direccion} onChangeText={setDireccion} style={styles.input} />
+      <TextInput
+        placeholder="Dirección"
+        value={direccion}
+        onChangeText={setDireccion}
+        style={styles.input}
+      />
+
       {error && <Text style={styles.error}>{error}</Text>}
-      <Button title="Registrarme" onPress={handleRegister} />
-      <Text style={styles.link} onPress={() => navigation.navigate('Login')}>
+
+      <TouchableOpacity style={styles.button} onPress={handleRegister}>
+        <Text style={styles.buttonText}>Registrarme</Text>
+      </TouchableOpacity>
+
+      <Text
+        style={styles.link}
+        onPress={() => navigation.navigate('Login')}
+      >
         ¿Ya tienes cuenta? Inicia sesión
       </Text>
     </View>
@@ -77,19 +108,65 @@ export default function RegisterScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, justifyContent: 'center' },
-  input: { marginBottom: 12, padding: 8, borderWidth: 1, borderRadius: 4 },
-  error: { color: 'red', marginBottom: 10 },
-  link: { marginTop: 15, color: 'blue', textAlign: 'center' },
+  container: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'center',
+    backgroundColor: '#f1f8e9',
+  },
+  header: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#4caf50', 
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  input: {
+    width: '100%',
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#d1d1d1',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    marginBottom: 15,
+    fontSize: 16,
+  },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderRadius: 4,
-    marginBottom: 12,
-    paddingRight: 8,
+    borderColor: '#d1d1d1',
+    borderRadius: 8,
+    marginBottom: 15,
+    paddingRight: 10,
   },
   icon: {
     padding: 4,
+  },
+  error: {
+    color: 'red',
+    marginBottom: 10,
+    fontSize: 14,
+  },
+  button: {
+    backgroundColor: '#388e3c',
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    borderRadius: 8,
+    marginTop: 20,
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: 300,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  link: {
+    marginTop: 20,
+    color: '#388e3c',
+    textAlign: 'center',
+    fontSize: 16,
   },
 });
