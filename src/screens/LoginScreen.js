@@ -20,7 +20,7 @@ export default function LoginScreen({ navigation }) {
     setError(null);
   
     try {
-      const hashedPassword = SHA256(password).toString();
+      let hashedPassword = SHA256(password).toString();
   
       const { data, error: queryError } = await supabase
         .from('Usuario')
