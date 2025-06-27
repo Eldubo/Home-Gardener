@@ -65,9 +65,9 @@ export default function EditarPerfilScreen({ navigation }) {
       const { error: updateError } = await supabase
         .from('Usuario')
         .update({
-          nombre: nombre.trim(),
-          email: email.trim().toLowerCase(),
-          direccion: direccion.trim(),
+          Nombre: nombre.trim(),
+          Email: email.trim().toLowerCase(),
+          Direccion: direccion.trim(),
         })
         .eq('ID', userId);
 

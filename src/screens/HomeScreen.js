@@ -37,7 +37,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.welcome}>Bienvenido, {userData.nombre || 'usuario'}</Text>
+      <Text style={styles.welcome}>Bienvenido, {userData.Nombre || "Usuario"}</Text>
       {/* muestra otras características */}
     </View>
   );

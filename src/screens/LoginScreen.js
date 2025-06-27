@@ -25,8 +25,8 @@ export default function LoginScreen({ navigation }) {
       const { data, error: queryError } = await supabase
         .from('Usuario')
         .select('*')
-        .eq('email', email.trim().toLowerCase())
-        .eq('password', hashedPassword)
+        .eq('Email', email.trim().toLowerCase())
+        .eq('Password', hashedPassword)
         .single();
 
       console.log('Usuario obtenido:', data);
@@ -51,7 +51,7 @@ export default function LoginScreen({ navigation }) {
       }
 
       setPassword('');
-      Alert.alert('Bienvenido', `Hola, ${data.nombre || 'usuario'}!`);
+      Alert.alert('Bienvenido', `Hola, ${data.Nombre || 'usuario'}!`);
       navigation.navigate('Home');
   
     } catch (e) {

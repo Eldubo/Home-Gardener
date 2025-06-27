@@ -56,9 +56,9 @@ export default function PerfilScreen({ navigation }) {
     <ScrollView>
       <View style={styles.container}>
         <Text style={styles.title}>Tu perfil</Text>
-        <Text style={styles.label}>Nombre: {user.nombre}</Text>
-        <Text style={styles.label}>Email: {user.email}</Text>
-        <Text style={styles.label}>Dirección: {user.direccion}</Text>
+        <Text style={styles.label}>Nombre: {user.Nombre}</Text>
+        <Text style={styles.label}>Email: {user.Email}</Text>
+        <Text style={styles.label}>Dirección: {user.Direccion}</Text>
 
         <Button title="Editar perfil" onPress={() => navigation.navigate('EditarPerfil')} />
 

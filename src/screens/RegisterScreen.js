@@ -27,10 +27,10 @@ export default function RegisterScreen({ navigation }) {
         .from('Usuario')
         .insert([
           {
-            nombre: nombre.trim(),
-            email: email.trim().toLowerCase(),
-            password: hashedPassword,
-            direccion: direccion.trim(),
+            Nombre: nombre.trim(),
+            Email: email.trim().toLowerCase(),
+            Password: hashedPassword,
+            Direccion: direccion.trim(),
           },
         ]);
 
