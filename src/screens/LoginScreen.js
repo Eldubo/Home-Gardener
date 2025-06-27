@@ -93,6 +93,12 @@ export default function LoginScreen({ navigation }) {
       >
         <Text style={styles.forgot}>¿Olvidaste tu contraseña?</Text>
       </TouchableOpacity>
+      <TouchableOpacity 
+        style={styles.forgotContainer}
+        onPress={() => navigation.navigate("Register")}
+      >
+        <Text style={styles.forgot}>Registrate gratuitamente</Text>
+      </TouchableOpacity>
     </View>
   );
 }

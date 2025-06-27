@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignItems: 'center',
     width: '100%',
-    maxWidth: 300,
+    maxWidth: '100%',
   },
   buttonText: {
     color: '#fff',
