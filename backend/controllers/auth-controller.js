@@ -190,7 +190,6 @@ const authenticateToken = (req, res, next) => {
 
 
 // Obtener perfil del usuario (requiere autenticación)
-// Obtener perfil del usuario (requiere autenticación)
 router.get('/profile', authenticateToken, async (req, res) => {
   console.log('ID del usuario desde el token:', req.user.ID); // Verifica el ID del usuario
 
@@ -219,7 +218,6 @@ router.get('/profile', authenticateToken, async (req, res) => {
 
 
 
-// Actualizar usuario (requiere autenticación)
 // Actualizar usuario (requiere autenticación)
 router.put('/profile', authenticateToken, async (req, res) => {
   let { nombre, email, password, direccion } = req.body;

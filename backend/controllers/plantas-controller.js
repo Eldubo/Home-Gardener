@@ -213,8 +213,7 @@ router.get('/datosSensores', async (req, res) => {
     }
   } catch (error) {
     console.error('Error en /datos:', error);
-<<<<<<< HEAD
-=======
+
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
   }
 });
@@ -258,7 +257,6 @@ router.get('/tipoPlanta', async (req, res) => {
     }
   } catch (error) {
     console.error('Error en /tipoPlanta:', error);
->>>>>>> e9a6e9dc09aeec24965f9be88dad2b2d0da86bd2
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
   }
 });
