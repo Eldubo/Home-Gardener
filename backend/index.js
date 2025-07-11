@@ -4,7 +4,7 @@ import express from 'express';
 import cors from 'cors';
 
 import AuthRoutes from './controllers/auth-controller.js';
-//import PlantasRoutes from './controllers/plantas-controller.js';
+import PlantasRoutes from './controllers/plantas-controller.js';
 console.log('DB_HOST from env:', process.env.DB_HOST);
 
 
@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/auth', AuthRoutes);
-//app.use('/api/plantas', PlantasRoutes);
+app.use('/api/plantas', PlantasRoutes);
 
 
 
