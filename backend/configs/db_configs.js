@@ -1,34 +1,27 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-const {
-  DATABASE_URL,
-  DB_HOST,
-  DB_PORT,
-  DB_USER,
-  DB_PASSWORD,
-  DB_NAME
-} = process.env;
+const { DB_URL } = process.env;
 
 let DB_config;
 
-if (DATABASE_URL) {
-  // Si existe DATABASE_URL (ej. en producción)
+if (DB_URL) {
+  // Usamos la cadena de conexión completa si existe DB_URL
   DB_config = {
-    connectionString: DATABASE_URL,
+    connectionString: DB_URL,
     ssl: {
-      rejectUnauthorized: false
+      rejectUnauthorized: false // Si estás usando un servicio como Supabase o Heroku, normalmente es necesario para SSL
     }
   };
 } else {
-  // Configuración local por variables individuales
+  // Configuración local por variables individuales si no existe DB_URL
   DB_config = {
-    host: DB_HOST || 'localhost',
-    port: DB_PORT ? Number(DB_PORT) : 5432,
-    user: DB_USER || 'postgres',
-    password: DB_PASSWORD || '',
-    database: DB_NAME || 'mi_base_de_datos',
-    ssl: false // Localmente generalmente sin SSL
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || 5432,
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'mi_base_de_datos',
+    ssl: false
   };
 }
 

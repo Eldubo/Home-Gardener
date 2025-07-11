@@ -6,10 +6,6 @@ import { StatusCodes } from 'http-status-codes';
 
 import AuthRoutes from './controllers/auth-controller.js';
 import PlantasRoutes from './controllers/plantas-controller.js';
-<<<<<<< HEAD
-=======
-console.log('DB_HOST from env:', process.env.DB_HOST);
->>>>>>> e9a6e9dc09aeec24965f9be88dad2b2d0da86bd2
 
 // Validar variables de entorno críticas
 const requiredEnvVars = ['JWT_SECRET', 'DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];

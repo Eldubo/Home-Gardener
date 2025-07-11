@@ -91,7 +91,7 @@ router.post('/register', async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('Error en /register:', error);
+    console.error('Error en /register:', error.stack || error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ 
       message: 'Error interno del servidor',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
