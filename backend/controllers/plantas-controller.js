@@ -52,6 +52,66 @@ router.post('/agregar', async (req, res) => {
   }
 });
 
+// AgregarFoto
+router.post('/agregarFoto', async (req, res) => {
+  const { foto, id } = req.body;
+
+  // Verifica que los campos obligatorios estén presentes
+  if (!foto) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Faltan campos obligatorios' });
+  }
+
+  try {
+
+    // Consulta para insertar nueva planta
+    const query = 'INSERT INTO Planta (Foto) VALUES ($1) WHERE ID = $2 RETURNING id';
+    const values = [foto, id];
+
+    // Ejecuta la consulta
+    const result = await pool.query(query, values);
+
+    // Verifica si se insertó correctamente
+    if (result.rows[0]?.id) {
+      return res.status(StatusCodes.CREATED).json({ message: 'Foto agregada'});
+    } else {
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No se pudo agregar la foto' });
+    }
+  } catch (error) {
+    console.error('Error en /agregarFoto:', error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
+  }
+});
+
+// AgregarFoto
+router.post('/actualizarFoto', async (req, res) => {
+  const { foto, idPlanta } = req.body;
+
+  // Verifica que los campos obligatorios estén presentes
+  if (!foto) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Faltan campos obligatorios' });
+  }
+
+  try {
+
+    // Consulta para insertar nueva planta
+    const query = 'UPDATE Planta SET Foto =$1 WHERE IdPlanta = $2 RETURNING id';
+    const value = [foto, idPlanta];
+
+    // Ejecuta la consulta
+    const result = await pool.query(query, values);
+
+    // Verifica si se insertó correctamente
+    if (result.rows[0]?.id) {
+      return res.status(StatusCodes.CREATED).json({ message: 'Foto agregada'});
+    } else {
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No se pudo agregar la foto' });
+    }
+  } catch (error) {
+    console.error('Error en /agregarFoto:', error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
+  }
+});
+
 //Lista plantas (Nombres)
 router.get('/', async (req, res) => {
     const { idUsuario } = req.body;
