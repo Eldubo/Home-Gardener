@@ -52,72 +52,92 @@ router.post('/agregar', async (req, res) => {
   }
 });
 
-//Lista plantas
+//Lista plantas (Nombres)
 router.get('/', async (req, res) => {
     const { idUsuario } = req.body;
   
     // Verifica que los campos sean proporcionados
-    if (!idPlanta) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No se envía el idPlanta' });
+    if (!idUsuario) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No se envía el idUsuario' });
     }
   
     try {
-      //Registro.TemperaturaDsp, Registro.HumedadDsp 
-      // Consulta para buscar al usuario por su email
-      const query = 'SELECT Nombre, Tipo FROM Planta WHERE IdUsuario = $1';
+      const query = 'SELECT Nombre FROM Planta WHERE p.IdUsuario = $1;';
       const values = [idUsuario];
 
 
-      const result = await pool.query(query, [email.toLowerCase()]);
+      const result = await pool.query(query, idUsuario);
   
-      // Si el usuario no existe, retorna un error
       if (result.rows.length === 0) {
-        return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Credenciales inválidas' });
+        return res.status(StatusCodes.OK).json({ message: 'No hay plantas' });
       }
-  
-  
-  
-      return res.status(StatusCodes.OK).json({
-          message: 'Login exitoso',
-          token,
-          user: {
-            id: user.id,
-            nombre: user.nombre,
-            email: user.email,
-            direccion: user.direccion
-          }
-        });
-  
-      const user = result.rows[0];
-  
-      // Compara la contraseña
-      const passwordMatch = await bcrypt.compare(password, user.password);
-  
-      if (!passwordMatch) {
-        return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Credenciales inválidas' });
-      }
-  
-      const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1d' });
-  
-      return res.status(StatusCodes.OK).json({
-        message: 'Login exitoso',
-        token,
-        user: {
-          id: user.id,
-          nombre: user.nombre,
-          email: user.email,
-          direccion: user.direccion
-        }
-      });
+
     } catch (error) {
-      console.error('Error en /login:', error);
+      console.error('Error en listar plantas:', error);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
+    }
+  });
+
+  router.put('/modificarNombre', async (req, res) => {
+    const { idPlanta, nuevoNombre } = req.body;
+  
+    // Verifica que los campos sean proporcionados
+    if (!idPlanta || !nuevoNombre) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No se envía el idPlanta o el nuevoNombre' });
+    }else if(Number.isInteger(idPlanta)){
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'idPlanta no es válido' });
+    }
+  
+    try {
+      const query = 'UPDATE Planta SET Nombre =$1 WHERE IdPlanta = $2 RETURNING id;';
+      const values = [nuevoNombre, idPlanta];
+
+
+      const result = await pool.query(query, values);
+  
+      if (result.rows[0]?.id) {
+        return res.status(StatusCodes.OK).json({ message: 'Se modificó el nombre' });
+      }else{
+        return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No se pudo modificar el nombre' });
+      }
+
+    } catch (error) {
+      console.error('Error en listar plantas:', error);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
+    }
+  });
+
+  //Último riego
+  router.get('/ultRiego', async (req, res) => {
+    const { idPlanta } = req.body;
+  
+    // Verifica que los campos sean proporcionados
+    if (!idPlanta) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No se envía el idPlanta' });
+    }else if(Number.isInteger(idPlanta)){
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'idPlanta no es válido' });
+    }
+  
+    try {
+      const query = 'SELECT MAX(Fecha) AS UltimaFechaRiego FROM Registro WHERE DuracionRiego IS NOT NULL AND IdPlanta = $1 GROUP BY IdPlanta;';
+      const values = [idPlanta];
+
+
+      const result = await pool.query(query, idUsuario);
+  
+      if (result.rows.length === 0) {
+        return res.status(StatusCodes.OK).json({ message: 'No hay plantas' });
+      }
+
+    } catch (error) {
+      console.error('Error en listar plantas:', error);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
     }
   });
 
 // Mostrar datos de tabla planta
-router.get('/datos', async (req, res) => {
-  const { idPlanta, idUsuario } = req.body;
+router.get('/datosSensores', async (req, res) => {
+  const { idPlanta } = req.body;
 
   // Verifica que los campos sean proporcionados
   if (!idPlanta) {
@@ -125,52 +145,57 @@ router.get('/datos', async (req, res) => {
   }
 
   try {
-    //Registro.TemperaturaDsp, Registro.HumedadDsp 
-    // Consulta para buscar al usuario por su email
-    const query = 'SELECT Nombre, Tipo FROM Planta WHERE IdUsuario = $1';
-    const result = await pool.query(query, [email.toLowerCase()]);
+    const query = 'SELECT TOP 1 "TemperaturaDsp", "HumedadDsp", "Fecha" FROM Registro WHERE IdPlanta = $1 ORDER BY Registro.Fecha DESC';
+    const result = await pool.query(query, idPlanta);
 
-    // Si el usuario no existe, retorna un error
     if (result.rows.length === 0) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Credenciales inválidas' });
+      return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'El idPlanta no existe' });
     }
-
-
-
-    return res.status(StatusCodes.OK).json({
-        message: 'Login exitoso',
-        token,
-        user: {
-          id: user.id,
-          nombre: user.nombre,
-          email: user.email,
-          direccion: user.direccion
-        }
-      });
-
-    const user = result.rows[0];
-
-    // Compara la contraseña
-    const passwordMatch = await bcrypt.compare(password, user.password);
-
-    if (!passwordMatch) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Credenciales inválidas' });
-    }
-
-    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1d' });
-
-    return res.status(StatusCodes.OK).json({
-      message: 'Login exitoso',
-      token,
-      user: {
-        id: user.id,
-        nombre: user.nombre,
-        email: user.email,
-        direccion: user.direccion
-      }
-    });
   } catch (error) {
-    console.error('Error en /login:', error);
+    console.error('Error en /datos:', error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
+  }
+});
+
+router.get('/conectadoAModulo', async (req, res) => {
+  const { idPlanta } = req.body;
+
+  // Verifica que los campos sean proporcionados
+  if (!idPlanta) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No se envía el idPlanta' });
+  }
+
+  try {
+    const query = 'SELECT ID FROM Modulo WHERE IdPlanta = $1';
+    const result = await pool.query(query, idPlanta);
+
+    if (result.rows.length === 0) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'No hay un módulo conectado' });
+    }
+  } catch (error) {
+    console.error('Error en /datos:', error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
+  }
+});
+
+
+router.get('/tipoPlanta', async (req, res) => {
+  const { idPlanta } = req.body;
+
+  // Verifica que los campos sean proporcionados
+  if (!idPlanta) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No se envía el idPlanta' });
+  }
+
+  try {
+    const query = 'SELECT TipoEspecifico.Nombre, TipoEspecifico.Grupo FROM TipoEspecifico INNER JOIN Planta ON TipoEspecifico.Nombre = Planta.Tipo WHERE Planta.ID = $1';
+    const result = await pool.query(query, idPlanta);
+
+    if (result.rows.length === 0) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No hay un grupo' });
+    }
+  } catch (error) {
+    console.error('Error en /tipoPlanta:', error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
   }
 });

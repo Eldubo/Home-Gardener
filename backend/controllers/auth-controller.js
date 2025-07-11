@@ -13,42 +13,89 @@ const pool = new Pool(DB_config);
 
 const JWT_SECRET = process.env.JWT_SECRET || 'clave_supersecreta';
 
+// Validaciones
+const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+const validatePassword = (password) => {
+  return password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password);
+};
+
 console.log('DB connection config:', DB_config);
 
 // Registro
 router.post('/register', async (req, res) => {
   const { nombre = '', email = '', password = '', direccion = '' } = req.body;
 
+  // Validaciones
   if (!email || !password || !direccion) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Faltan campos obligatorios' });
+    return res.status(StatusCodes.BAD_REQUEST).json({ 
+      message: 'Email, contraseña y dirección son campos obligatorios' 
+    });
+  }
+
+  if (!validateEmail(email)) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ 
+      message: 'Formato de email inválido' 
+    });
+  }
+
+  if (!validatePassword(password)) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ 
+      message: 'La contraseña debe tener al menos 8 caracteres, una letra y un número' 
+    });
+  }
+
+  if (nombre.length < 2) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ 
+      message: 'El nombre debe tener al menos 2 caracteres' 
+    });
   }
 
   try {
+    // Verificar si el email ya existe
+    const existingUser = await pool.query('SELECT "ID" FROM "Usuario" WHERE "Email" = $1', [email.toLowerCase()]);
+    if (existingUser.rows.length > 0) {
+      return res.status(StatusCodes.CONFLICT).json({ 
+        message: 'El email ya está registrado' 
+      });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    //const query = 'INSERT INTO Usuario (nombre, email, password, direccion) VALUES ($1, $2, $3, $4) RETURNING id';
-    //const values = [nombre, email.toLowerCase(), hashedPassword, direccion];
-
-    const query = "INSERT INTO Usuario (nombre, email, password, direccion) VALUES ('1', '2', '3', '4') RETURNING id";
-    const values = [];
-   /* INSERT INTO public."Usuario"(
-      "Password", "Email", "Direccion", "Nombre", "Foto"
-  ) VALUES ('1', '2', '3', '4', '5'); */
+    const query = 'INSERT INTO "Usuario" ("Nombre", "Email", "Password", "Direccion") VALUES ($1, $2, $3, $4) RETURNING "ID", "Nombre", "Email", "Direccion"';
+    const values = [nombre.trim(), email.toLowerCase().trim(), hashedPassword, direccion.trim()];
 
     const result = await pool.query(query, values);
-    const newId = result.rows[0]?.id;
+    const newUser = result.rows[0];
 
-    if (newId) {
+    if (newUser) {
+      // Generar token JWT para el nuevo usuario
+      const token = jwt.sign({ id: newUser.id, email: newUser.email }, JWT_SECRET, { expiresIn: '1d' });
+
       return res.status(StatusCodes.CREATED).json({
         message: 'Usuario registrado exitosamente',
-        userId: newId
+        token,
+        user: {
+          id: newUser.id,
+          nombre: newUser.nombre,
+          email: newUser.email,
+          direccion: newUser.direccion
+        }
       });
     } else {
-      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No se pudo registrar el usuario' });
+      return res.status(StatusCodes.BAD_REQUEST).json({ 
+        message: 'No se pudo registrar el usuario' 
+      });
     }
   } catch (error) {
     console.error('Error en /register:', error);
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ 
+      message: 'Error interno del servidor',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
@@ -57,56 +104,164 @@ router.post('/login', async (req, res) => {
   const { email = '', password = '' } = req.body;
 
   if (!email || !password) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Email y contraseña requeridos' });
+    return res.status(StatusCodes.BAD_REQUEST).json({ 
+      message: 'Email y contraseña son requeridos' 
+    });
+  }
+
+  if (!validateEmail(email)) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ 
+      message: 'Formato de email inválido' 
+    });
   }
 
   try {
-    const query = 'SELECT * FROM Usuario WHERE email = $1';
-    const result = await pool.query(query, [email.toLowerCase()]);
+    const query = 'SELECT "ID", "Nombre", "Email", "Password", "Direccion" FROM "Usuario" WHERE "Email" = $1';
+    const result = await pool.query(query, [email.toLowerCase().trim()]);
 
     if (result.rows.length === 0) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Credenciales inválidas' });
+      return res.status(StatusCodes.UNAUTHORIZED).json({ 
+        message: 'Credenciales inválidas' 
+      });
     }
 
     const user = result.rows[0];
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    console.log('password desde la DB:', user.Password); // Depuración
+    console.log('Resultado de la consulta:', result.rows[0]);
+
+    const passwordMatch = await bcrypt.compare(password, user.Password);
 
     if (!passwordMatch) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Credenciales inválidas' });
+      return res.status(StatusCodes.UNAUTHORIZED).json({ 
+        message: 'Credenciales inválidas' 
+      });
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1d' });
+    // Generar token con toda la información del usuario
+    const token = jwt.sign({
+      ID: user.ID,
+      nombre: user.Nombre,
+      email: user.Email,
+      direccion: user.Direccion
+    }, JWT_SECRET, { expiresIn: '1d' });
 
     return res.status(StatusCodes.OK).json({
       message: 'Login exitoso',
       token,
       user: {
-        id: user.id,
-        nombre: user.nombre,
-        email: user.email,
-        direccion: user.direccion
+        ID: user.ID,
+        nombre: user.Nombre,
+        email: user.Email,
+        direccion: user.Direccion
       }
     });
   } catch (error) {
     console.error('Error en /login:', error);
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ 
+      message: 'Error interno del servidor',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
-// Actualizar usuario
-router.put('/user/:id', async (req, res) => {
-  const userId = req.params.id;
-  let { nombre, email, password, direccion } = req.body;
 
-  if (!userId) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'ID de usuario requerido' });
+// Middleware para verificar autenticación JWT
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+
+  if (!token) {
+    return res.status(StatusCodes.UNAUTHORIZED).json({ 
+      message: 'Token de acceso requerido' 
+    });
   }
 
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(StatusCodes.FORBIDDEN).json({ 
+        message: 'Token inválido o expirado' 
+      });
+    }
+    console.log('Payload del token:', user); // Verifica qué contiene el payload del token
+    req.user = user;
+    next();
+  });
+};
+
+
+// Obtener perfil del usuario (requiere autenticación)
+// Obtener perfil del usuario (requiere autenticación)
+router.get('/profile', authenticateToken, async (req, res) => {
+  console.log('ID del usuario desde el token:', req.user.ID); // Verifica el ID del usuario
+
   try {
-    // Primero verificamos que el usuario exista
-    const userCheck = await pool.query('SELECT * FROM Usuario WHERE id = $1', [userId]);
+    const query = 'SELECT "ID", "Nombre", "Email", "Direccion" FROM "Usuario" WHERE "ID" = $1';
+    const result = await pool.query(query, [req.user.ID]); // Usamos req.user.ID
+
+    if (result.rows.length === 0) {
+      return res.status(StatusCodes.NOT_FOUND).json({ 
+        message: 'Usuario no encontrado' 
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      message: 'Perfil obtenido exitosamente',
+      user: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Error en /profile:', error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ 
+      message: 'Error interno del servidor',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+
+
+// Actualizar usuario (requiere autenticación)
+// Actualizar usuario (requiere autenticación)
+router.put('/profile', authenticateToken, async (req, res) => {
+  let { nombre, email, password, direccion } = req.body;
+
+  try {
+    // Primero verificamos que el usuario exista con el ID proveniente del token
+    console.log('ID del usuario desde el token:', req.user.ID); // Verifica que ID del usuario se esté pasando correctamente
+
+    const userCheck = await pool.query('SELECT * FROM "Usuario" WHERE "ID" = $1', [req.user.ID]);
     if (userCheck.rows.length === 0) {
-      return res.status(StatusCodes.NOT_FOUND).json({ message: 'Usuario no encontrado' });
+      return res.status(StatusCodes.NOT_FOUND).json({ 
+        message: 'Usuario no encontrado' 
+      });
+    }
+
+    // Validaciones
+    if (email && !validateEmail(email)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ 
+        message: 'Formato de email inválido' 
+      });
+    }
+
+    if (password && !validatePassword(password)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ 
+        message: 'La contraseña debe tener al menos 8 caracteres, una letra y un número' 
+      });
+    }
+
+    if (nombre && nombre.length < 2) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ 
+        message: 'El nombre debe tener al menos 2 caracteres' 
+      });
+    }
+
+    // Verificar si el email ya existe (si se está actualizando)
+    if (email && email !== userCheck.rows[0].email) {
+      const existingUser = await pool.query('SELECT "ID" FROM "Usuario" WHERE "Email" = $1 AND "ID" != $2', [email.toLowerCase(), req.user.ID]);
+      if (existingUser.rows.length > 0) {
+        return res.status(StatusCodes.CONFLICT).json({ 
+          message: 'El email ya está registrado por otro usuario' 
+        });
+      }
     }
 
     // Si envían contraseña, la hasheamos
@@ -120,36 +275,45 @@ router.put('/user/:id', async (req, res) => {
     let idx = 1;
 
     if (nombre !== undefined) {
-      fields.push(`nombre = $${idx++}`);
-      values.push(nombre);
+      fields.push(`"Nombre" = $${idx++}`);
+      values.push(nombre.trim());
     }
     if (email !== undefined) {
-      fields.push(`email = $${idx++}`);
-      values.push(email.toLowerCase());
+      fields.push(`"Email" = $${idx++}`);
+      values.push(email.toLowerCase().trim());
     }
     if (password !== undefined) {
-      fields.push(`password = $${idx++}`);
+      fields.push(`"Password" = $${idx++}`);
       values.push(password);
     }
     if (direccion !== undefined) {
-      fields.push(`direccion = $${idx++}`);
-      values.push(direccion);
+      fields.push(`"Direccion" = $${idx++}`);
+      values.push(direccion.trim());
     }
 
     if (fields.length === 0) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No se enviaron campos para actualizar' });
+      return res.status(StatusCodes.BAD_REQUEST).json({ 
+        message: 'No se enviaron campos para actualizar' 
+      });
     }
 
-    values.push(userId); // último parámetro para WHERE id = $n
-    const query = `UPDATE Usuario SET ${fields.join(', ')} WHERE id = $${idx}`;
+    values.push(req.user.ID); // último parámetro para WHERE ID = $n
+    const query = `UPDATE "Usuario" SET ${fields.join(', ')} WHERE "ID" = $${idx} RETURNING "ID", "Nombre", "Email", "Direccion"`;
 
-    await pool.query(query, values);
+    const result = await pool.query(query, values);
 
-    return res.status(StatusCodes.OK).json({ message: 'Usuario actualizado correctamente' });
+    return res.status(StatusCodes.OK).json({ 
+      message: 'Usuario actualizado correctamente',
+      user: result.rows[0]
+    });
   } catch (error) {
-    console.error('Error en /user/:id:', error);
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
+    console.error('Error en /profile:', error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ 
+      message: 'Error interno del servidor',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
+
 
 export default router;
