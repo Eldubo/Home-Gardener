@@ -153,6 +153,52 @@ router.get('/datosSensores', async (req, res) => {
     }
   } catch (error) {
     console.error('Error en /datos:', error);
+<<<<<<< HEAD
+=======
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
+  }
+});
+
+router.get('/conectadoAModulo', async (req, res) => {
+  const { idPlanta } = req.body;
+
+  // Verifica que los campos sean proporcionados
+  if (!idPlanta) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No se envía el idPlanta' });
+  }
+
+  try {
+    const query = 'SELECT ID FROM Modulo WHERE IdPlanta = $1';
+    const result = await pool.query(query, idPlanta);
+
+    if (result.rows.length === 0) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'No hay un módulo conectado' });
+    }
+  } catch (error) {
+    console.error('Error en /datos:', error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
+  }
+});
+
+
+router.get('/tipoPlanta', async (req, res) => {
+  const { idPlanta } = req.body;
+
+  // Verifica que los campos sean proporcionados
+  if (!idPlanta) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No se envía el idPlanta' });
+  }
+
+  try {
+    const query = 'SELECT TipoEspecifico.Nombre, TipoEspecifico.Grupo FROM TipoEspecifico INNER JOIN Planta ON TipoEspecifico.Nombre = Planta.Tipo WHERE Planta.ID = $1';
+    const result = await pool.query(query, idPlanta);
+
+    if (result.rows.length === 0) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No hay un grupo' });
+    }
+  } catch (error) {
+    console.error('Error en /tipoPlanta:', error);
+>>>>>>> e9a6e9dc09aeec24965f9be88dad2b2d0da86bd2
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
   }
 });
