@@ -15,14 +15,14 @@ export default function HomeScreen() {
       }
 
       try {
-        const res = await fetch('http://localhost:4000/profile', {
+        const res = await fetch('http://localhost:3000/api/auth/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         if (!res.ok) throw new Error('Token inválido o expirado');
 
         const data = await res.json();
-        setUserData(data);
+        setUserData(data.user || data);
       } catch (e) {
         console.log('Error al cargar perfil:', e);
       } finally {

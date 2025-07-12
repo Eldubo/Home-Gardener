@@ -23,7 +23,7 @@ const validatePassword = (password) => {
   return password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password);
 };
 
-console.log('DB connection config:', DB_config);
+// Configuración de base de datos cargada correctamente
 
 // Registro
 router.post('/register', async (req, res) => {
@@ -126,8 +126,6 @@ router.post('/login', async (req, res) => {
     }
 
     const user = result.rows[0];
-    console.log('password desde la DB:', user.Password); // Depuración
-    console.log('Resultado de la consulta:', result.rows[0]);
 
     const passwordMatch = await bcrypt.compare(password, user.Password);
 
@@ -182,7 +180,6 @@ const authenticateToken = (req, res, next) => {
         message: 'Token inválido o expirado' 
       });
     }
-    console.log('Payload del token:', user); // Verifica qué contiene el payload del token
     req.user = user;
     next();
   });
@@ -191,7 +188,6 @@ const authenticateToken = (req, res, next) => {
 
 // Obtener perfil del usuario (requiere autenticación)
 router.get('/profile', authenticateToken, async (req, res) => {
-  console.log('ID del usuario desde el token:', req.user.ID); // Verifica el ID del usuario
 
   try {
     const query = 'SELECT "ID", "Nombre", "Email", "Direccion" FROM "Usuario" WHERE "ID" = $1';
@@ -224,7 +220,6 @@ router.put('/profile', authenticateToken, async (req, res) => {
 
   try {
     // Primero verificamos que el usuario exista con el ID proveniente del token
-    console.log('ID del usuario desde el token:', req.user.ID); // Verifica que ID del usuario se esté pasando correctamente
 
     const userCheck = await pool.query('SELECT * FROM "Usuario" WHERE "ID" = $1', [req.user.ID]);
     if (userCheck.rows.length === 0) {

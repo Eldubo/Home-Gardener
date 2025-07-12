@@ -6,23 +6,23 @@ export default function Footer({ navigation }) {
   return (
     <View style={styles.footer}>
       <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-        <Ionicons name="home" color="#000" size={5} />
+        <Ionicons name="home" color="#000" size={24} />
         <Text style={styles.link}>Home</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate('Plantas')}>
-        <Ionicons name="leaf-outline" color="#000" size={5} />
+        <Ionicons name="leaf-outline" color="#000" size={24} />
         <Text style={styles.link}>Plantas</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate('QR')}>
-        <Ionicons name="qr-code" color="#000" size={5} />
+        <Ionicons name="qr-code" color="#000" size={24} />
         <Text style={styles.link}>QR</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate('Info')}>
-        <Feather nname="book" color="#000" size={5}></Feather>
+        <Feather name="book" color="#000" size={24} />
         <Text style={styles.link}>Info</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate('Perfil')}>
-      <Feather name="user" color="#000" size={5} />
+        <Feather name="user" color="#000" size={24} />
         <Text style={styles.link}>Perfil</Text>
       </TouchableOpacity>
     </View>

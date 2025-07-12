@@ -1,30 +1,55 @@
-import React from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import Ionicons from 'react-native-vector-icons/MaterialCommunityIcons';
-export default function PlantasScreen() {
-  const renderplantas = ({ plantas }) => (
-    <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('DetallePlanta', { id: plantas.id })}>
-      <Image source={imagen} style={styles.imagen} />
+
+export default function PlantasScreen({ navigation }) {
+  const [plantas, setPlantas] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simular carga de datos de plantas
+    setTimeout(() => {
+      setPlantas([
+        { id: 1, nombre: 'Tomate', estado: 'Saludable', imagen: require('../../assets/image1.png') },
+        { id: 2, nombre: 'Lechuga', estado: 'Necesita agua', imagen: require('../../assets/image1.png') },
+        { id: 3, nombre: 'Pimiento', estado: 'En crecimiento', imagen: require('../../assets/image1.png') },
+      ]);
+      setLoading(false);
+    }, 1000);
+  }, []);
+
+  const renderPlanta = ({ item }) => (
+    <TouchableOpacity style={styles.card} onPress={() => Alert.alert('Detalle', `Planta: ${item.nombre}`)}>
+      <Image source={item.imagen} style={styles.imagen} />
       <View style={styles.textContainer}>
-        <Text style={styles.nombre}>{plantas.nombre}</Text>
-        <Text style={styles.estado}>{plantas.estado}</Text>
+        <Text style={styles.nombre}>{item.nombre}</Text>
+        <Text style={styles.estado}>{item.estado}</Text>
       </View>
       <Ionicons name="arrow-forward-circle-outline" size={24} color="#22A45D" />
     </TouchableOpacity>
-     );
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Cargando plantas...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.separatorBottom}>
       <View style={styles.container}>
-      <Text style={styles.titulo}>Mis Plantas</Text>
-      <FlatList
-        data={plantas}
-        renderplantas={renderplantas}
-        keyExtractor={(plantas) => plantas.id.toString()}
-        contentContainerStyle={styles.lista}
-      />
-      <TouchableOpacity style={styles.botonAgregar} onPress={() => navigation.navigate('AgregarPlanta')}>
-        <Text style={styles.textoBoton}>Agregar planta</Text>
-      </TouchableOpacity>
+        <Text style={styles.titulo}>Mis Plantas</Text>
+        <FlatList
+          data={plantas}
+          renderItem={renderPlanta}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.lista}
+        />
+        <TouchableOpacity style={styles.botonAgregar} onPress={() => Alert.alert('Agregar', 'Función de agregar planta')}>
+          <Text style={styles.textoBoton}>Agregar planta</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
