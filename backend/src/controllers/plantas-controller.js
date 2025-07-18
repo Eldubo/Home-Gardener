@@ -15,10 +15,10 @@ router.post('/agregar', authenticateToken, async (req, res) => {
     return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Faltan campos obligatorios' });
   }
   try {
-    const query = 'INSERT INTO Planta (Nombre, Tipo, IdUsuario) VALUES ($1, $2, $3) RETURNING id';
+    const query = 'INSERT INTO "Planta" ("Nombre", "Tipo", "IdUsuario") VALUES ($1, $2, $3) RETURNING "ID"';
     const values = [nombre, tipo, idUsuario];
     const result = await pool.query(query, values);
-    const newId = result.rows[0]?.id;
+    const newId = result.rows[0]?.ID;
     if (newId > 0) {
       return res.status(StatusCodes.CREATED).json({ message: 'Planta agregada exitosamente', plantaId: newId });
     } else {
