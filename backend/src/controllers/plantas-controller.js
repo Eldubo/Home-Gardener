@@ -37,7 +37,7 @@ router.post('/agregarFoto', authenticateToken, async (req, res) => {
     return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Faltan campos obligatorios o id no es válido' });
   }
   try {
-    const query = 'UPDATE Planta SET Foto = $1 WHERE id = $2 RETURNING id';
+    const query = 'UPDATE "Planta" SET "Foto" = $1 WHERE "ID" = $2 RETURNING "ID"';
     const values = [foto, id];
     const result = await pool.query(query, values);
     if (result.rows[0]?.id) {
@@ -58,7 +58,7 @@ router.post('/actualizarFoto', authenticateToken, async (req, res) => {
     return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Faltan campos obligatorios o idPlanta no es válido' });
   }
   try {
-    const query = 'UPDATE Planta SET Foto = $1 WHERE id = $2 RETURNING id';
+    const query = 'UPDATE "Planta" SET "Foto" = $1 WHERE "ID" = $2 RETURNING "ID"';
     const values = [foto, idPlanta];
     const result = await pool.query(query, values);
     if (result.rows[0]?.id) {
@@ -76,7 +76,7 @@ router.post('/actualizarFoto', authenticateToken, async (req, res) => {
 router.get('/', authenticateToken, async (req, res) => {
   const idUsuario = req.user.ID;
   try {
-    const query = 'SELECT id, Nombre, Tipo, Foto FROM Planta WHERE IdUsuario = $1';
+    const query = 'SELECT "ID", "Nombre", "Tipo", "Foto" FROM "Planta" WHERE "IdUsuario" = $1';
     const values = [idUsuario];
     const result = await pool.query(query, values);
     if (result.rows.length === 0) {
@@ -98,12 +98,12 @@ router.put('/modificarNombre', authenticateToken, async (req, res) => {
   try {
     // Solo permite modificar plantas del usuario autenticado
     const idUsuario = req.user.ID;
-    const checkQuery = 'SELECT id FROM Planta WHERE id = $1 AND IdUsuario = $2';
+    const checkQuery = 'SELECT "ID" FROM "Planta" WHERE "ID" = $1 AND "IdUsuario" = $2';
     const checkResult = await pool.query(checkQuery, [idPlanta, idUsuario]);
     if (checkResult.rows.length === 0) {
       return res.status(StatusCodes.FORBIDDEN).json({ message: 'No tienes permiso para modificar esta planta' });
     }
-    const query = 'UPDATE Planta SET Nombre = $1 WHERE id = $2 RETURNING id';
+    const query = 'UPDATE "Planta" SET "Nombre" = $1 WHERE "ID" = $2 RETURNING "ID"';
     const values = [nuevoNombre, idPlanta];
     const result = await pool.query(query, values);
     if (result.rows[0]?.id) {
@@ -126,12 +126,12 @@ router.get('/conectadoAModulo', authenticateToken, async (req, res) => {
   try {
     // Solo permite consultar módulos de plantas del usuario autenticado
     const idUsuario = req.user.ID;
-    const checkQuery = 'SELECT id FROM Planta WHERE id = $1 AND IdUsuario = $2';
+    const checkQuery = 'SELECT "ID" FROM "Planta" WHERE "ID" = $1 AND "IdUsuario" = $2';
     const checkResult = await pool.query(checkQuery, [idPlanta, idUsuario]);
     if (checkResult.rows.length === 0) {
       return res.status(StatusCodes.FORBIDDEN).json({ message: 'No tienes permiso para consultar esta planta' });
     }
-    const query = 'SELECT id FROM Modulo WHERE IdPlanta = $1';
+    const query = 'SELECT "ID" FROM "Modulo" WHERE "IdPlanta" = $1';
     const result = await pool.query(query, [idPlanta]);
     if (result.rows.length === 0) {
       return res.status(StatusCodes.NOT_FOUND).json({ message: 'No hay un módulo conectado' });
@@ -152,13 +152,17 @@ router.get('/tipoPlanta', authenticateToken, async (req, res) => {
   try {
     // Solo permite consultar tipo de plantas del usuario autenticado
     const idUsuario = req.user.ID;
-    const checkQuery = 'SELECT id FROM Planta WHERE id = $1 AND IdUsuario = $2';
+    const checkQuery = 'SELECT "ID" FROM "Planta" WHERE "ID" = $1 AND "IdUsuario" = $2';
     const checkResult = await pool.query(checkQuery, [idPlanta, idUsuario]);
     if (checkResult.rows.length === 0) {
       return res.status(StatusCodes.FORBIDDEN).json({ message: 'No tienes permiso para consultar esta planta' });
     }
-    const query = 'SELECT TipoEspecifico.Nombre, TipoEspecifico.Grupo FROM TipoEspecifico INNER JOIN Planta ON TipoEspecifico.Nombre = Planta.Tipo WHERE Planta.id = $1';
-    const result = await pool.query(query, [idPlanta]);
+    const query = `
+    SELECT "TipoEspecifico"."Nombre", "TipoEspecifico"."Grupo" 
+    FROM "TipoEspecifico" 
+    INNER JOIN "Planta" ON "TipoEspecifico"."Nombre" = "Planta"."Tipo" 
+    WHERE "Planta"."ID" = $1
+  `;    const result = await pool.query(query, [idPlanta]);
     if (result.rows.length === 0) {
       return res.status(StatusCodes.NOT_FOUND).json({ message: 'No hay un grupo' });
     }
