@@ -9,9 +9,10 @@ const pool = new Pool(DB_config);
 
 // Agregar planta (requiere autenticación)
 router.post('/agregar', authenticateToken, async (req, res) => {
-  const { nombre, tipo, idUsuario } = req.body;
-  if (!nombre || !tipo || !idUsuario || typeof idUsuario !== 'number') {
-    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Faltan campos obligatorios o idUsuario no es válido' });
+  const { nombre, tipo } = req.body;
+  const idUsuario = req.user.ID;
+  if (!nombre || !tipo) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Faltan campos obligatorios' });
   }
   try {
     const query = 'INSERT INTO Planta (Nombre, Tipo, IdUsuario) VALUES ($1, $2, $3) RETURNING id';
@@ -73,10 +74,7 @@ router.post('/actualizarFoto', authenticateToken, async (req, res) => {
 
 // Listar plantas por usuario (requiere autenticación)
 router.get('/', authenticateToken, async (req, res) => {
-  const { idUsuario } = req.body;
-  if (!idUsuario || typeof idUsuario !== 'number') {
-    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'idUsuario es obligatorio y debe ser numérico' });
-  }
+  const idUsuario = req.user.ID;
   try {
     const query = 'SELECT id, Nombre, Tipo, Foto FROM Planta WHERE IdUsuario = $1';
     const values = [idUsuario];
@@ -98,6 +96,13 @@ router.put('/modificarNombre', authenticateToken, async (req, res) => {
     return res.status(StatusCodes.BAD_REQUEST).json({ message: 'idPlanta y nuevoNombre son obligatorios y válidos' });
   }
   try {
+    // Solo permite modificar plantas del usuario autenticado
+    const idUsuario = req.user.ID;
+    const checkQuery = 'SELECT id FROM Planta WHERE id = $1 AND IdUsuario = $2';
+    const checkResult = await pool.query(checkQuery, [idPlanta, idUsuario]);
+    if (checkResult.rows.length === 0) {
+      return res.status(StatusCodes.FORBIDDEN).json({ message: 'No tienes permiso para modificar esta planta' });
+    }
     const query = 'UPDATE Planta SET Nombre = $1 WHERE id = $2 RETURNING id';
     const values = [nuevoNombre, idPlanta];
     const result = await pool.query(query, values);
@@ -119,6 +124,13 @@ router.get('/conectadoAModulo', authenticateToken, async (req, res) => {
     return res.status(StatusCodes.BAD_REQUEST).json({ message: 'idPlanta es obligatorio y debe ser numérico' });
   }
   try {
+    // Solo permite consultar módulos de plantas del usuario autenticado
+    const idUsuario = req.user.ID;
+    const checkQuery = 'SELECT id FROM Planta WHERE id = $1 AND IdUsuario = $2';
+    const checkResult = await pool.query(checkQuery, [idPlanta, idUsuario]);
+    if (checkResult.rows.length === 0) {
+      return res.status(StatusCodes.FORBIDDEN).json({ message: 'No tienes permiso para consultar esta planta' });
+    }
     const query = 'SELECT id FROM Modulo WHERE IdPlanta = $1';
     const result = await pool.query(query, [idPlanta]);
     if (result.rows.length === 0) {
@@ -138,6 +150,13 @@ router.get('/tipoPlanta', authenticateToken, async (req, res) => {
     return res.status(StatusCodes.BAD_REQUEST).json({ message: 'idPlanta es obligatorio y debe ser numérico' });
   }
   try {
+    // Solo permite consultar tipo de plantas del usuario autenticado
+    const idUsuario = req.user.ID;
+    const checkQuery = 'SELECT id FROM Planta WHERE id = $1 AND IdUsuario = $2';
+    const checkResult = await pool.query(checkQuery, [idPlanta, idUsuario]);
+    if (checkResult.rows.length === 0) {
+      return res.status(StatusCodes.FORBIDDEN).json({ message: 'No tienes permiso para consultar esta planta' });
+    }
     const query = 'SELECT TipoEspecifico.Nombre, TipoEspecifico.Grupo FROM TipoEspecifico INNER JOIN Planta ON TipoEspecifico.Nombre = Planta.Tipo WHERE Planta.id = $1';
     const result = await pool.query(query, [idPlanta]);
     if (result.rows.length === 0) {
