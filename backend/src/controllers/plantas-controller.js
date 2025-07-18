@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import DB_config from './../configs/db_configs.js';
+import DB_config from '../../configs/db_configs.js';
 import { Pool } from 'pg';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -9,6 +9,7 @@ const router = Router();
 
 const pool = new Pool(DB_config);
 
+/*
 // JWT_SECRET para firmar el token
 const JWT_SECRET = process.env.JWT_SECRET || 'clave_supersecreta';
 console.log('DB connection config:', {
@@ -18,7 +19,9 @@ console.log('DB connection config:', {
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
 });
-// Agregar
+*/
+
+// Agregar planta
 router.post('/agregar', async (req, res) => {
   const { nombre, tipo, idUsuario } = req.body;
 
@@ -82,7 +85,7 @@ router.post('/agregarFoto', async (req, res) => {
   }
 });
 
-// AgregarFoto
+// editar Foto de la planta
 router.post('/actualizarFoto', async (req, res) => {
   const { foto, idPlanta } = req.body;
 
@@ -138,6 +141,7 @@ router.get('/', async (req, res) => {
     }
   });
 
+  //modificar Nombre de la planta
   router.put('/modificarNombre', async (req, res) => {
     const { idPlanta, nuevoNombre } = req.body;
   
@@ -167,57 +171,7 @@ router.get('/', async (req, res) => {
     }
   });
 
-  //Último riego
-  router.get('/ultRiego', async (req, res) => {
-    const { idPlanta } = req.body;
-  
-    // Verifica que los campos sean proporcionados
-    if (!idPlanta) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No se envía el idPlanta' });
-    }else if(Number.isInteger(idPlanta)){
-      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'idPlanta no es válido' });
-    }
-  
-    try {
-      const query = 'SELECT MAX(Fecha) AS UltimaFechaRiego FROM Registro WHERE DuracionRiego IS NOT NULL AND IdPlanta = $1 GROUP BY IdPlanta;';
-      const values = [idPlanta];
-
-
-      const result = await pool.query(query, idUsuario);
-  
-      if (result.rows.length === 0) {
-        return res.status(StatusCodes.OK).json({ message: 'No hay plantas' });
-      }
-
-    } catch (error) {
-      console.error('Error en listar plantas:', error);
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
-    }
-  });
-
-// Mostrar datos de tabla planta
-router.get('/datosSensores', async (req, res) => {
-  const { idPlanta } = req.body;
-
-  // Verifica que los campos sean proporcionados
-  if (!idPlanta) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No se envía el idPlanta' });
-  }
-
-  try {
-    const query = 'SELECT TOP 1 "TemperaturaDsp", "HumedadDsp", "Fecha" FROM Registro WHERE IdPlanta = $1 ORDER BY Registro.Fecha DESC';
-    const result = await pool.query(query, idPlanta);
-
-    if (result.rows.length === 0) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'El idPlanta no existe' });
-    }
-  } catch (error) {
-    console.error('Error en /datos:', error);
-
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
-  }
-});
-
+//Si está conectado a módulo 
 router.get('/conectadoAModulo', async (req, res) => {
   const { idPlanta } = req.body;
 
@@ -240,49 +194,8 @@ router.get('/conectadoAModulo', async (req, res) => {
 });
 
 
-router.get('/tipoPlanta', async (req, res) => {
-  const { idPlanta } = req.body;
 
-  // Verifica que los campos sean proporcionados
-  if (!idPlanta) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No se envía el idPlanta' });
-  }
-
-  try {
-    const query = 'SELECT TipoEspecifico.Nombre, TipoEspecifico.Grupo FROM TipoEspecifico INNER JOIN Planta ON TipoEspecifico.Nombre = Planta.Tipo WHERE Planta.ID = $1';
-    const result = await pool.query(query, idPlanta);
-
-    if (result.rows.length === 0) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No hay un grupo' });
-    }
-  } catch (error) {
-    console.error('Error en /tipoPlanta:', error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
-  }
-});
-
-router.get('/conectadoAModulo', async (req, res) => {
-  const { idPlanta } = req.body;
-
-  // Verifica que los campos sean proporcionados
-  if (!idPlanta) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No se envía el idPlanta' });
-  }
-
-  try {
-    const query = 'SELECT ID FROM Modulo WHERE IdPlanta = $1';
-    const result = await pool.query(query, idPlanta);
-
-    if (result.rows.length === 0) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'No hay un módulo conectado' });
-    }
-  } catch (error) {
-    console.error('Error en /datos:', error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
-  }
-});
-
-
+//Obtener tipo de planta
 router.get('/tipoPlanta', async (req, res) => {
   const { idPlanta } = req.body;
 

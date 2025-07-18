@@ -4,8 +4,9 @@ import express from 'express';
 import cors from 'cors';
 import { StatusCodes } from 'http-status-codes';
 
-import AuthRoutes from './controllers/auth-controller.js';
-import PlantasRoutes from './controllers/plantas-controller.js';
+import AuthRoutes from './src/controllers/auth-controller.js';
+import PlantasRoutes from './src/controllers/plantas-controller.js';
+import SensoresRoutes from './src/controllers/sensores-controller.js';
 
 // Validar variables de entorno críticas
 const requiredEnvVars = ['JWT_SECRET', 'DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
@@ -45,6 +46,8 @@ app.use((req, res, next) => {
 // Rutas de la API
 app.use('/api/auth', AuthRoutes);
 app.use('/api/plantas', PlantasRoutes);
+app.use('/api/sensores', SensoresRoutes);
+
 
 // Ruta de salud del servidor
 app.get('/health', (req, res) => {
