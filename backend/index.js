@@ -3,13 +3,14 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import { StatusCodes } from 'http-status-codes';
+import moment from 'moment-timezone';
 
 import AuthRoutes from './src/controllers/auth-controller.js';
 import PlantasRoutes from './src/controllers/plantas-controller.js';
 import SensoresRoutes from './src/controllers/sensores-controller.js';
 
 // Validar variables de entorno críticas
-const requiredEnvVars = ['JWT_SECRET', 'DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
+const requiredEnvVars = ['JWT_SECRET', 'DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'PORT'];
 const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
 
 if (missingEnvVars.length > 0) {
@@ -38,7 +39,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Middleware de logging
 app.use((req, res, next) => {
-  const timestamp = new Date().toISOString();
+  // Obtener la fecha y hora en UTC-3
+  const timestamp = moment().tz('America/Argentina/Buenos_Aires').format('DD-MM-YYYY HH:mm:ss');
   console.log(`[${timestamp}] ${req.method} ${req.path} - ${req.ip}`);
   next();
 });
@@ -48,13 +50,14 @@ app.use('/api/auth', AuthRoutes);
 app.use('/api/plantas', PlantasRoutes);
 app.use('/api/sensores', SensoresRoutes);
 
-
 // Ruta de salud del servidor
 app.get('/health', (req, res) => {
+  // Obtener la fecha y hora en UTC-3 para la ruta de salud
+  const timestamp = moment().tz('America/Argentina/Buenos_Aires').format('DD-MM-YYYY HH:mm:ss');
   res.status(StatusCodes.OK).json({
     status: 'OK',
     message: 'Servidor Home Gardener funcionando correctamente',
-    timestamp: new Date().toISOString(),
+    timestamp: timestamp,
     environment: process.env.NODE_ENV || 'development'
   });
 });
@@ -125,7 +128,7 @@ app.use((error, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 
-// Función para cerrar el servidor gracefulmente
+// Función para cerrar el servidor gracefully
 const gracefulShutdown = (signal) => {
   console.log(`\n🛑 Recibida señal ${signal}. Cerrando servidor...`);
   process.exit(0);
