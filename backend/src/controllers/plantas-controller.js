@@ -92,7 +92,7 @@ router.get('/', authenticateToken, async (req, res) => {
 // Modificar nombre de la planta (requiere autenticación)
 router.put('/modificarNombre', authenticateToken, async (req, res) => {
   const { idPlanta, nuevoNombre } = req.body;
-  if (!idPlanta || typeof idPlanta !== 'number' || !nuevoNombre) {
+  if (!Number.isInteger(idPlanta) || !nuevoNombre || typeof nuevoNombre !== 'string') {
     return res.status(StatusCodes.BAD_REQUEST).json({ message: 'idPlanta y nuevoNombre son obligatorios y válidos' });
   }
   try {
@@ -106,7 +106,7 @@ router.put('/modificarNombre', authenticateToken, async (req, res) => {
     const query = 'UPDATE "Planta" SET "Nombre" = $1 WHERE "ID" = $2 RETURNING "ID"';
     const values = [nuevoNombre, idPlanta];
     const result = await pool.query(query, values);
-    if (result.rows[0]?.id) {
+    if (result.rows.length > 0) {
       return res.status(StatusCodes.OK).json({ message: 'Se modificó el nombre' });
     } else {
       return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No se pudo modificar el nombre' });
