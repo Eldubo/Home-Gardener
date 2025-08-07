@@ -20,10 +20,8 @@ router.post('/agregar', authenticateToken, async (req, res) => {
   }
 
   try {
-    // Validar que el tipo existe en TipoEspecifico
     const tipoQuery = `SELECT "Nombre" FROM "TipoEspecifico" WHERE "Nombre" = $1`;
     const tipoResult = await pool.query(tipoQuery, [tipo.trim()]);
-
     if (tipoResult.rows.length === 0) {
       return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Tipo de planta no válido' });
     }
@@ -32,10 +30,15 @@ router.post('/agregar', authenticateToken, async (req, res) => {
     const values = [nombre.trim(), tipo.trim(), idUsuario];
     const result = await pool.query(query, values);
 
-    const newId = result.rows[0]?.ID;
-    if (isValidId(newId)) {
+    console.log('Insert result:', result.rows[0]);
+
+    const newIdRaw = result.rows[0]?.ID || result.rows[0]?.id;
+    const newId = parseInt(newIdRaw, 10);
+
+    if (newId && Number.isInteger(newId)) {
       return res.status(StatusCodes.CREATED).json({ message: 'Planta agregada exitosamente', plantaId: newId });
     } else {
+      console.warn('No se obtuvo ID válido tras inserción.');
       return res.status(StatusCodes.BAD_REQUEST).json({ message: 'No se pudo agregar la planta' });
     }
   } catch (error) {
@@ -43,7 +46,6 @@ router.post('/agregar', authenticateToken, async (req, res) => {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error interno del servidor' });
   }
 });
-
 
 // Agregar o actualizar foto de la planta (requiere autenticación)
 const upsertFoto = async (req, res, idField) => {

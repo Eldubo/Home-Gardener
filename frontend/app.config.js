@@ -28,10 +28,6 @@ export default {
     web: {
       favicon: './assets/favicon.png',
     },
-    extra: {
-      supabaseUrl: process.env.EXPO_SUPABASE_URL,
-      supabaseAnonKey: process.env.EXPO_SUPABASE_ANON_KEY,
-    },
     plugins: [
       'expo-secure-store'
     ]
