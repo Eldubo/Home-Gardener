@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { supabase } from '../lib/Supabase';
 
 export default function EditarPerfilScreen({ navigation }) {
   const [userData, setUserData] = useState(null);

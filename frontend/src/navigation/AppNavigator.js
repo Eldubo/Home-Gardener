@@ -12,6 +12,7 @@ import PerfilScreen from '../screens/PerfilScreen';
 import BienvenidoScreen from '../screens/BienvenidoScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import EditarPerfilScreen from '../screens/EditarPerfilScreen';
+import HealthCheck from '../screens/HealthStatus';
 
 import Layout from '../components/Layout';
 
@@ -21,7 +22,7 @@ export default function AppNavigator() {
   return (
     <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Splash" component={SplashScreen} />
-      <Stack.Screen name="Bienvenido" component={BienvenidoScreen} />
+      <Stack.Screen name="Bienvenido" component={HealthCheck} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
