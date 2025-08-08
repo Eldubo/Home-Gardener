@@ -7,9 +7,11 @@ import authenticateToken from '../middlewares/auth.js';
 const router = Router();
 const pool = new Pool(DB_config);
 
+
 // Obtener datos de los sensores (requiere autenticación)
 router.get('/datosSensores', authenticateToken, async (req, res) => {
   const idPlanta = Number(req.query.idPlanta);
+  const {email, password} = req.body;
   if (!Number.isInteger(idPlanta)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ message: 'idPlanta es obligatorio y debe ser numérico' });
   }
