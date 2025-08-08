@@ -123,7 +123,6 @@ router.delete('/desconectarModulo', authenticateToken, async (req, res) => {
       return res.status(StatusCodes.NOT_FOUND).json({ message: 'No hay un módulo conectado a esta planta' });
     }
 
-    // Desconectar el módulo (setear IdPlanta a NULL)
     const updateQuery = 'UPDATE "Modulo" SET "IdPlanta" = NULL WHERE "IdPlanta" = $1 RETURNING "ID"';
     const result = await pool.query(updateQuery, [idPlanta]);
 
@@ -133,5 +132,83 @@ router.delete('/desconectarModulo', authenticateToken, async (req, res) => {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error interno del servidor' });
   }
 });
+router.post('/subirDatosPlanta', authenticateToken, async (req, res) => {
+  const { idPlanta, temperatura, humedad, fecha } = req.body;
+  if (!Number.isInteger(idPlanta) || typeof temperatura !== 'number' || typeof humedad !== 'number') {
+    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Parámetros inválidos' });
+  }
 
+  try {
+    const idUsuario = req.user.ID;
+    const checkQuery = 'SELECT "ID" FROM "Planta" WHERE "ID" = $1 AND "IdUsuario" = $2';
+    const checkResult = await pool.query(checkQuery, [idPlanta, idUsuario]);
+    if (checkResult.rows.length === 0) {
+      return res.status(StatusCodes.FORBIDDEN).json({ message: 'No tienes permiso para modificar esta planta' });
+    }
+
+    // Redondear humedad para HumedadDsp (int2)
+    const humedadInt = Math.round(humedad);
+
+    // Buscar el último registro de la planta para obtener el valor "antes"
+    const lastQuery = `
+      SELECT "Temperatura", "HumedadDsp"
+      FROM "Registro"
+      WHERE "IdPlanta" = $1 AND "Temperatura" IS NOT NULL AND "HumedadDsp" IS NOT NULL
+      ORDER BY "Fecha" DESC
+      LIMIT 1
+    `;
+    const lastResult = await pool.query(lastQuery, [idPlanta]);
+    let humedadAntes = 0;
+    if (lastResult.rows.length > 0) {
+      humedadAntes = lastResult.rows[0].HumedadDsp ?? 0;
+    }
+
+    const insertQuery = `
+      INSERT INTO "Registro" ("IdPlanta", "Temperatura", "HumedadDsp", "Fecha", "HumedadAntes")
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *
+    `;
+    const fechaInsertar = fecha ? new Date(fecha) : new Date();
+    const result = await pool.query(insertQuery, [idPlanta, temperatura, humedadInt, fechaInsertar, humedadAntes]);
+    return res.status(StatusCodes.CREATED).json({ message: 'Datos subidos correctamente', registro: result.rows[0] });
+  } catch (error) {
+    if (error.code === '23505') {
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Ya existe un registro de datos para esta planta en esa fecha.' });
+    }
+    console.error('Error en /subirDatosPlanta:', error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error interno del servidor' });
+  }
+});
+router.post('/registrarUltRiego', authenticateToken, async (req, res) => {
+  const { idPlanta, fecha, duracionRiego } = req.body;
+  if (!Number.isInteger(idPlanta) || typeof duracionRiego !== 'number') {
+    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Parámetros inválidos' });
+  }
+
+  try {
+    const idUsuario = req.user.ID;
+    const checkQuery = 'SELECT "ID" FROM "Planta" WHERE "ID" = $1 AND "IdUsuario" = $2';
+    const checkResult = await pool.query(checkQuery, [idPlanta, idUsuario]);
+    if (checkResult.rows.length === 0) {
+      return res.status(StatusCodes.FORBIDDEN).json({ message: 'No tienes permiso para modificar esta planta' });
+    }
+
+    // Insertar registro de riego con duración y valores por defecto para columnas NOT NULL
+    const insertQuery = `
+      INSERT INTO "Registro" ("IdPlanta", "Fecha", "DuracionRiego", "HumedadAntes")
+      VALUES ($1, $2, $3, $4)
+      RETURNING *
+    `;
+    const fechaInsertar = fecha ? new Date(fecha) : new Date();
+    // Puedes ajustar el valor de HumedadAntes según tu lógica
+    const result = await pool.query(insertQuery, [idPlanta, fechaInsertar, duracionRiego, 0]);
+    return res.status(StatusCodes.CREATED).json({ message: 'Riego registrado correctamente', registro: result.rows[0] });
+  } catch (error) {
+    if (error.code === '23505') {
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Ya existe un registro de riego para esta planta en esa fecha.' });
+    }
+    console.error('Error en /registrarUltRiego:', error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error interno del servidor' });
+  }
+});
 export default router;
