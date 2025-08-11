@@ -1,0 +1,12 @@
+export {default as SplashScreen} from '../screens/SplashScreen'; 
+export {default as LoginScreen} from '../screens/LoginScreen';
+export {default as RegisterScreen} from '../screens/RegisterScreen';
+export {default as HomeScreen} from '../screens/HomeScreen';
+export {default as PlantasScreen} from '../screens/PlantasScreen';
+export {default as QRScreen} from '../screens/QRScreen';
+export {default as InfoScreen} from '../screens/InfoScreen';
+export {default as PerfilScreen} from '../screens/PerfilScreen';
+export {default as BienvenidoScreen} from '../screens/BienvenidoScreen';
+export {default as ForgotPasswordScreen} from '../screens/ForgotPasswordScreen';
+export {default as EditarPerfilScreen} from '../screens/EditarPerfilScreen';
+export {default as HealthCheck} from '../screens/HealthStatus';

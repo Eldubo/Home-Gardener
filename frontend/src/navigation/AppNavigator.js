@@ -1,18 +1,20 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import SplashScreen from '../screens/SplashScreen'; 
-import LoginScreen from '../screens/LoginScreen';
-import RegisterScreen from '../screens/RegisterScreen';
-import HomeScreen from '../screens/HomeScreen';
-import PlantasScreen from '../screens/PlantasScreen';
-import QRScreen from '../screens/QRScreen';
-import InfoScreen from '../screens/InfoScreen';
-import PerfilScreen from '../screens/PerfilScreen';
-import BienvenidoScreen from '../screens/BienvenidoScreen';
-import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
-import EditarPerfilScreen from '../screens/EditarPerfilScreen';
-import HealthCheck from '../screens/HealthStatus';
+import {
+  SplashScreen, 
+  LoginScreen,
+  RegisterScreen, 
+  HomeScreen, 
+  PlantasScreen, 
+  QRScreen,
+  InfoScreen, 
+  PerfilScreen, 
+  BienvenidoScreen, 
+  ForgotPasswordScreen, 
+  EditarPerfilScreen, 
+  HealthCheck
+} from '../screens'
 
 import Layout from '../components/Layout';
 
