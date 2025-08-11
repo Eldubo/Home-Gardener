@@ -38,11 +38,61 @@ export default function HomeScreen() {
   if (!userData) return <Text style={styles.error}>No hay datos de usuario</Text>;
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Bienvenido, {userData.nombre || 'usuario'}</Text>
-      <Text>Email: {userData.email}</Text>
-      <Text>Dirección: {userData.direccion}</Text>
-    </View>
+<ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 24 }}>
+      <View style={styles.headerWrap}>
+        <ImageBackground
+          style={styles.headerImage}
+          imageStyle={styles.headerImageRadius}
+          source={{
+            uri: "",
+          }}
+        >
+          <View style={styles.headerOverlay} />
+        </ImageBackground>
+
+        <View style={styles.logoCircle}>
+          <Image
+            source={{
+              uri: "",
+            }}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+        </View>
+      </View>
+      <View style={styles.greetingBox}>
+        <Text style={styles.greetingText}>Bienvenido/a a Home</Text>
+        <Text style={styles.greetingText}>Gardener</Text>
+        <Text style={styles.greetingName}>{userName}</Text>
+      </View>
+      <View style={styles.list}>
+        {PLANTS.map((p) => (
+          <View key={p.id} style={styles.card}>
+            <View style={styles.cardLeft}>
+              <Text style={styles.cardTitle}>{p.name}</Text>
+              <Text
+                style={[
+                  styles.cardNote,
+                  p.status === "ok" && { color: "#6c757d" },
+                  p.status === "warn" && { color: "#d39e00" },
+                  p.status === "alert" && { color: "#e35d6a" },
+                ]}
+                numberOfLines={2}
+              >
+                {p.note}
+              </Text>
+            </View>
+            <View style={[styles.statusDot, { backgroundColor: statusColor[p.status] }]} />
+          </View>
+        ))}
+      </View>
+      <TouchableOpacity 
+        style={styles.boton} 
+        onPress={() => navigation.navigate('ChatBot')}
+      >
+        <Text style={styles.botonText}></Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 }
 
