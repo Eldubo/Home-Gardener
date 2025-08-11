@@ -15,29 +15,34 @@ router.post('/agregar', authenticateToken, async (req, res) => {
   const { nombre, tipo, idAmbiente } = req.body;
   const idUsuario = req.user.ID;
 
-  if (!nombre || typeof nombre !== 'string' || !tipo || typeof tipo !== 'string' || !idAmbiente || typeof idAmbiente !== 'int') {
+  if (
+    !nombre || typeof nombre !== 'string' ||
+    !tipo || typeof tipo !== 'string' ||
+    !idAmbiente || typeof idAmbiente !== 'number' || !Number.isInteger(idAmbiente) || idAmbiente <= 0
+  ) {
     return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Nombre, tipo y ambiente son obligatorios y deben ser del tipo de dato correcto' });
   }
+  
   try { 
-    //Verificar que exista el tipo de planta
+    // Verificar que exista el tipo de planta
     const tipoQuery = `SELECT "Nombre" FROM "TipoEspecifico" WHERE "Nombre" = $1`;
     const tipoResult = await pool.query(tipoQuery, [tipo.trim()]);
     if (tipoResult.rows.length === 0) {
       return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Tipo de planta no válido' });
     }
-    //Verificar que exista el ambiente
+    
+    // Verificar que exista el ambiente y que pertenezca al usuario
     const ambienteQuery = `SELECT "Nombre" FROM "Ambiente" WHERE "ID" = $1 AND "IdUsuario" = $2`;
-    const ambienteResult = await pool.query(ambienteQuery, [idAmbiente.trim()], [req.user.ID]);
+    const ambienteResult = await pool.query(ambienteQuery, [idAmbiente, idUsuario]);
     if (ambienteResult.rows.length === 0) {
       return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Ambiente no encontrado' });
     }
 
+    // Insertar la planta con el idAmbiente correcto
     const query = `INSERT INTO "Planta" ("Nombre", "Tipo", "IdAmbiente") VALUES ($1, $2, $3) RETURNING "ID"`;
-    const values = [nombre.trim(), tipo.trim(), idUsuario];
+    const values = [nombre.trim(), tipo.trim(), idAmbiente];
     const result = await pool.query(query, values);
-
-    console.log('Insert result:', result.rows[0]);
-
+    
     const newIdRaw = result.rows[0]?.ID || result.rows[0]?.id;
     const newId = parseInt(newIdRaw, 10);
 
@@ -52,6 +57,7 @@ router.post('/agregar', authenticateToken, async (req, res) => {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error interno del servidor' });
   }
 });
+
 
 // Eliminar planta (requiere autenticación)
 router.delete('/eliminar', authenticateToken, async (req, res) => {
@@ -133,8 +139,14 @@ router.get('/', authenticateToken, async (req, res) => {
   const idUsuario = req.user.ID;
 
   try {
-    const query = `SELECT "P.ID", "P.Nombre", "P.Tipo", "P.Foto" FROM "Planta" P INNER JOIN "Ambiente" A ON "P.IdAmbiente" = "A.ID" WHERE "P.ID" = $1 AND "A.IdUsuario" = $2`;
-    const result = await pool.query(query, [idUsuario]);
+    const query = `
+    SELECT "P"."ID", "P"."Nombre", "P"."Tipo", "P"."Foto"
+    FROM "Planta" AS "P"
+    INNER JOIN "Ambiente" AS "A" ON "P"."IdAmbiente" = "A"."ID"
+    WHERE "A"."IdUsuario" = $1
+  `;
+  const result = await pool.query(query, [idUsuario]);
+  
 
     if (result.rows.length === 0) {
       return res.status(StatusCodes.OK).json({ message: 'No hay plantas para este usuario' });
