@@ -8,6 +8,7 @@ import moment from 'moment-timezone';
 import AuthRoutes from './src/controllers/auth-controller.js';
 import PlantasRoutes from './src/controllers/plantas-controller.js';
 import SensoresRoutes from './src/controllers/sensores-controller.js';
+import AmbienteRoutes from './src/controllers/ambiente-controller.js';
 
 // Validar variables de entorno críticas
 const requiredEnvVars = ['JWT_SECRET', 'DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'PORT'];
@@ -49,6 +50,7 @@ app.use((req, res, next) => {
 app.use('/api/auth', AuthRoutes);
 app.use('/api/plantas', PlantasRoutes);
 app.use('/api/sensores', SensoresRoutes);
+app.use('/api/ambiente', AmbienteRoutes);
 
 // Ruta de salud del servidor
 app.get('/health', (req, res) => {
