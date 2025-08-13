@@ -1,158 +1,251 @@
+# Home Gardener
 
-# Home-Gardener
+Aplicación de **gestión de plantas y jardines** con *backend* en Node.js/Express + PostgreSQL y *frontend* móvil con React Native (Expo).
 
-Bienvenido a la aplicación con código abierto de Home Gardener - Una aplicación para gestionar tu jardín y plantas.
+> Monorepo con dos carpetas principales: `backend/` y `frontend/`.
 
-## 🚀 Características
+---
 
-- 🌱 Gestión de plantas y jardines
-- 👤 Sistema de autenticación de usuarios
-- 📱 Interfaz responsive para web y móvil
-- 🔐 Autenticación JWT segura
-- 🗄️ Base de datos PostgreSQL
+## Tabla de contenidos
 
-## 📋 Prerrequisitos
+1. [Arquitectura](#arquitectura)
+2. [Características](#características)
+3. [Requisitos](#requisitos)
+4. [Configuración rápida](#configuración-rápida)
 
-- Node.js >= 18.0.0
-- npm >= 8.0.0
-- PostgreSQL
-- Expo CLI (para desarrollo móvil)
+   * [Backend](#backend)
+   * [Frontend (Expo)](#frontend-expo)
+5. [Variables de entorno](#variables-de-entorno)
+6. [Base de datos (SQL sugerido)](#base-de-datos-sql-sugerido)
+7. [Endpoints principales](#endpoints-principales)
+8. [Estructura del proyecto](#estructura-del-proyecto)
+9. [Comandos útiles](#comandos-útiles)
+10. [Troubleshooting](#troubleshooting)
+11. [Colección Postman](#colección-postman)
+12. [Licencia](#licencia)
 
-## 🛠️ Instalación
+---
 
-### 1. Clonar el proyecto
+## Arquitectura
 
-```bash
-git clone https://github.com/Eldubo/Home-Gardener.git
-cd Home-Gardener
+```
+frontend (React Native / Expo)
+   ↕ HTTP (REST, JSON)
+backend (Node.js / Express) — PostgreSQL
 ```
 
-### 2. Configurar el Backend
+* **Backend** expone la API REST (`/api/...` + `/health`).
+* **Frontend** consume la API (por defecto `http://localhost:3000` en desarrollo).
 
-```bash
-cd backend
-npm install
-```
+## Características
 
-Crear archivo `.env` en la carpeta `backend`:
+* 🔐 **Autenticación JWT**: registro, login, perfil.
+* 🌱 **Gestión de plantas**: altas/bajas/modificaciones y listado.
+* 🌡️ **Sensores / riego**: lectura de datos y registro de riegos.
+* 🏠 **Ambientes**: alta, edición y listado de ambientes.
+* 🛡️ **Validaciones** de entrada y manejo de errores consistente.
+* 🩺 **Health Check**: `GET /health` para monitoreo simple.
 
-```env
-# Configuración de la base de datos
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=tu_password_aqui
-DB_NAME=home_gardener_db
+## Requisitos
 
-# Configuración JWT
-JWT_SECRET=tu_jwt_secret_super_seguro_aqui
+* **Node.js** ≥ 18
+* **npm** ≥ 8
+* **PostgreSQL** ≥ 13
+* (Frontend) **Expo CLI** (`npm i -g expo-cli`) *opcional pero recomendado*
 
-# Configuración del servidor
-PORT=3000
-NODE_ENV=development
-
-# URL del frontend (para CORS)
-FRONTEND_URL=http://localhost:3000
-```
-
-### 3. Configurar la Base de Datos
-
-Crear la base de datos PostgreSQL:
-
-```sql
-CREATE DATABASE home_gardener_db;
-```
-
-Crear la tabla de usuarios:
-
-```sql
-CREATE TABLE "Usuario" (
-    "ID" SERIAL PRIMARY KEY,
-    "Nombre" VARCHAR(100) NOT NULL,
-    "Email" VARCHAR(255) UNIQUE NOT NULL,
-    "Password" VARCHAR(255) NOT NULL,
-    "Direccion" TEXT NOT NULL,
-    "FechaCreacion" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-### 4. Configurar el Frontend
-
-```bash
-cd ../frontend
-npm install
-```
-
-Crear archivo `.env` en la carpeta `frontend`:
-
-```env
-EXPO_SUPABASE_URL=tu_url_de_supabase
-EXPO_SUPABASE_ANON_KEY=tu_clave_anonima_de_supabase
-```
-
-## 🚀 Ejecutar el proyecto
+## Configuración rápida
 
 ### Backend
 
 ```bash
 cd backend
-npm run dev
+npm install
+# Copiar variables de entorno
+cp .env.example .env   # si existe; si no, crear .env con el bloque de abajo
+npm run dev            # o: npm start
 ```
 
-El servidor estará disponible en: http://localhost:3000
+El servidor escucha en `PORT` (por defecto 3000) y registra logs con zona horaria `America/Argentina/Buenos_Aires`.
 
-### Frontend
+### Frontend (Expo)
 
 ```bash
 cd frontend
-npm start
+npm install
+npm run start           # o: npm run android / npm run ios / npm run web
 ```
 
-Luego presiona `w` para abrir en web: http://localhost:19006
+> **Importante (dispositivos físicos):** si probás en el celular, `http://localhost:3000` **no** apunta a tu PC. Cambiá la *base URL* del frontend por la **IP LAN** de tu máquina (ej.: `http://192.168.0.10:3000`). En `src/screens/HealthStatus.js` el componente acepta `baseUrl` como prop y por defecto usa `http://localhost:3000`.
 
-## 📱 Uso
+## Variables de entorno
 
-1. **Registro**: Crea una nueva cuenta con tu email y contraseña
-2. **Login**: Inicia sesión con tus credenciales
-3. **Gestión de Plantas**: Agrega y gestiona tus plantas
-4. **Perfil**: Actualiza tu información personal
+Crea un archivo **`backend/.env`** con alguno de estos esquemas:
 
-## 🛠️ Scripts disponibles
+### Opción A — Cadena completa (DB\_URL)
+
+```
+PORT=3000
+NODE_ENV=development
+JWT_SECRET=tu_clave_super_secreta
+DB_URL=postgres://user:password@host:5432/home_gardener_db
+```
+
+### Opción B — Parámetros individuales
+
+```
+PORT=3000
+NODE_ENV=development
+JWT_SECRET=tu_clave_super_secreta
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=home_gardener_db
+```
+
+> El backend usa `backend/configs/db_configs.js` y soporta `DB_URL` o los parámetros individuales. En producción (p. ej. Supabase/Heroku) puede requerirse `ssl`.
+
+## Base de datos (SQL sugerido)
+
+> **Nota:** las tablas reales pueden variar; este es un esquema mínimo basado en el código del repo (`controllers/*`). Ajustalo según tus necesidades.
+
+```sql
+-- Base de datos
+CREATE DATABASE home_gardener_db;
+
+-- Usuarios
+CREATE TABLE "Usuario" (
+  "ID" SERIAL PRIMARY KEY,
+  "Nombre" TEXT NOT NULL,
+  "Email" TEXT UNIQUE NOT NULL,
+  "Password" TEXT NOT NULL,
+  "Direccion" TEXT
+);
+
+-- Ambientes (hogar, balcón, interior, etc.)
+CREATE TABLE "Ambiente" (
+  "ID" SERIAL PRIMARY KEY,
+  "Nombre" TEXT NOT NULL
+);
+
+-- Plantas del usuario
+CREATE TABLE "Planta" (
+  "ID" SERIAL PRIMARY KEY,
+  "Nombre" TEXT NOT NULL,
+  "Tipo" TEXT,
+  "Foto" TEXT,
+  "UltimaFechaRiego" TIMESTAMP NULL,
+  "IdAmbiente" INTEGER REFERENCES "Ambiente"("ID") ON DELETE SET NULL,
+  "IdUsuario" INTEGER NOT NULL REFERENCES "Usuario"("ID") ON DELETE CASCADE
+);
+
+-- Registros de riego / sensores
+CREATE TABLE "Registro" (
+  "ID" SERIAL PRIMARY KEY,
+  "IdPlanta" INTEGER NOT NULL REFERENCES "Planta"("ID") ON DELETE CASCADE,
+  "Fecha" TIMESTAMP NOT NULL DEFAULT NOW(),
+  "HumedadAntes" NUMERIC,
+  "HumedadDsp" NUMERIC,
+  "Temperatura" NUMERIC,
+  "TemperaturaDsp" NUMERIC,
+  "DuracionRiego" INTEGER
+);
+```
+
+## Endpoints principales
+
+> Prefijo base del backend: normalmente `http://localhost:3000`
+
+### Salud
+
+* `GET /health` → estado del servidor.
+
+### Auth (`/api/auth`)
+
+* `POST /register` → alta de usuario.
+* `POST /login` → login (devuelve JWT).
+* `GET /profile` → perfil actual (requiere `Authorization: Bearer <token>`).
+* `PUT /profile` → actualizar perfil (JWT).
+
+### Plantas (`/api/plantas`)
+
+* `POST /agregar` → crear planta (JWT).
+* `GET /misPlantas` → listar plantas del usuario (JWT).
+* `PUT /modificarNombre` → renombrar planta (JWT).
+* `PUT /actualizarFoto` → actualizar foto por URL/base64 (JWT).
+* `DELETE /eliminar/:id` → eliminar planta (JWT).
+
+### Sensores / Riego (`/api/sensores`)
+
+* `GET /datosSensores?idPlanta=...` → últimos datos (JWT).
+* `GET /ultimaMedicion?idPlanta=...` → última medición (JWT).
+* `POST /subirDatosPlanta` → registrar medición (JWT).
+* `POST /registrarUltRiego` → registrar riego finalizado (JWT).
+
+### Ambientes (`/api/ambiente`)
+
+* `POST /agregar` → crear ambiente (JWT).
+* `GET /listar` → listar ambientes (JWT).
+* `PUT /editar/:id` → editar ambiente (JWT).
+
+> Las rutas exactas y validaciones están en `backend/src/controllers/*`.
+
+## Estructura del proyecto
+
+```
+Home-Gardener/
+├─ backend/
+│  ├─ index.js                # servidor Express y wiring de rutas
+│  ├─ configs/db_configs.js   # conexión PostgreSQL (DB_URL o variables)
+│  ├─ src/
+│  │  ├─ controllers/         # auth, plantas, sensores, ambiente
+│  │  └─ middlewares/auth.js  # verificación JWT
+│  └─ package.json
+│
+├─ frontend/
+│  ├─ App.js                  # NavigationContainer
+│  ├─ app.config.js           # configuración Expo
+│  ├─ src/
+│  │  ├─ components/          # Footer, etc.
+│  │  ├─ navigation/AppNavigator.js
+│  │  ├─ screens/             # Home, Login, Register, Perfil, Plantas, QR, etc.
+│  │  │  └─ HealthStatus.js   # usa `GET /health`
+│  │  └─ services/            # axios wrapper y servicios
+│  └─ package.json
+└─ README.md
+```
+
+## Comandos útiles
 
 ### Backend
-- `npm start`: Inicia el servidor en producción
-- `npm run dev`: Inicia el servidor en modo desarrollo con nodemon
-- `npm run clean`: Limpia node_modules
-- `npm run reinstall`: Reinstala dependencias
+
+```bash
+npm run dev       # nodemon (si está instalado)
+npm start         # node index.js
+npm run clean     # elimina node_modules y package-lock.json
+npm run reinstall # clean + npm install
+```
 
 ### Frontend
-- `npm start`: Inicia Expo
-- `npm run android`: Inicia en Android
-- `npm run ios`: Inicia en iOS
-- `npm run web`: Inicia en web
 
-## 🔧 Tecnologías utilizadas
+```bash
+npm run start     # abre el bundler de Expo
+npm run android   # intenta abrir en emulador/Android conectado
+npm run ios       # simulador iOS (macOS)
+npm run web       # versión web con React Native Web
+```
 
-### Backend
-- Node.js
-- Express.js
-- PostgreSQL
-- JWT
-- bcrypt
-- CORS
+## Troubleshooting
 
-### Frontend
-- React Native
-- Expo
-- React Navigation
-- AsyncStorage
-- Vector Icons
+* **CORS / red de dispositivos**: si usás celular físico, usá la **IP LAN** de tu PC en vez de `localhost`.
+* **JWT `Unauthorized`**: verificá que enviás `Authorization: Bearer <token>` en rutas protegidas.
+* **Conexión DB**: revisá `DB_URL` o variables y que la base existe. El backend loguea la configuración cargada (`db_configs.js`).
+* **Puertos ocupados**: cambiá `PORT` en el `.env` o cerrá procesos en uso.
 
-## 📞 Soporte
+## Colección Postman
 
-Para soporte, contacta a: magondubi@gmail.com
+En `backend/New Collection.postman_collection.json` hay una colección con ejemplos para probar la API.
 
-## 📄 Licencia
+## Licencia
 
-Este proyecto está bajo la Licencia MIT.
-
+Este proyecto se distribuye bajo la **Licencia MIT**.
