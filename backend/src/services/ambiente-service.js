@@ -1,4 +1,4 @@
-import AmbienteRepository from '../repositories/ambienteRepository.js';
+import AmbienteRepository from '../repositories/ambiente-repository.js';
 import AppError from '../utils/AppError.js';
 import { StatusCodes } from 'http-status-codes';
 import { validaciones } from '../utils/validaciones.js';

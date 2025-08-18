@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import DB_config from '../../configs/db_configs.js';
+import DB_config from '../configs/db_configs.js';
 import { Pool } from 'pg';
 import authenticateToken from '../middlewares/auth.js';
 
