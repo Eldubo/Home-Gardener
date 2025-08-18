@@ -1,38 +1,36 @@
-import React, { useState } from 'react';
+// src/screens/LoginScreen.js
+import React, { useState, useMemo } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createAPI } from '../../services/api';
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen({ navigation, baseUrl = "http://localhost:3000" }) {
+  // Instancia de API (se recrea si cambia baseUrl)
+  const api = useMemo(() => createAPI(baseUrl), [baseUrl]);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const validatePassword = (password) => {
-    return password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password);
-  };
+  const validateEmail = (mail) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail);
+  const validatePassword = (pwd) =>
+    pwd.length >= 8 && /[a-zA-Z]/.test(pwd) && /\d/.test(pwd);
 
   const handleLogin = async () => {
     setError(null);
     setLoading(true);
-    
+
     if (!email || !password) {
       setError('Email y contraseña son obligatorios');
       setLoading(false);
       return;
     }
-
     if (!validateEmail(email)) {
       setError('Formato de email inválido');
       setLoading(false);
       return;
     }
-
     if (!validatePassword(password)) {
       setError('La contraseña debe tener al menos 8 caracteres, una letra y un número');
       setLoading(false);
@@ -40,25 +38,21 @@ export default function LoginScreen({ navigation }) {
     }
 
     try {
-      const res = await fetch('http://localhost:3000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      const { data } = await api.post('/api/auth/login', { email, password });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || data.error || 'Error en el login');
-        return;
-      }
-
+      // guardar token
       await AsyncStorage.setItem('token', data.token);
-      Alert.alert('Bienvenido', `Hola, ${data.user.nombre || 'usuario'}!`);
+
+      Alert.alert('Bienvenido', `Hola, ${data.user?.nombre || 'usuario'}!`);
       navigation.navigate('Home');
     } catch (e) {
-      setError('Error al conectar con el servidor');
-      console.log(e)
+      const msg =
+        e?.response?.data?.message ||
+        e?.response?.data?.error ||
+        e.message ||
+        'Error en el login';
+      setError(msg);
+      console.log('Login error:', e);
     } finally {
       setLoading(false);
     }
@@ -66,10 +60,27 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <TextInput placeholder="Email" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" style={styles.input} />
-      <TextInput placeholder="Contraseña" secureTextEntry value={password} onChangeText={setPassword} style={styles.input} />
+      <TextInput
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
+        style={styles.input}
+      />
+      <TextInput
+        placeholder="Contraseña"
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+        style={styles.input}
+      />
       {error && <Text style={styles.error}>{error}</Text>}
-      <Button title={loading ? "Cargando..." : "Iniciar sesión"} onPress={handleLogin} disabled={loading} />
+      <Button
+        title={loading ? 'Cargando...' : 'Iniciar sesión'}
+        onPress={handleLogin}
+        disabled={loading}
+      />
     </View>
   );
 }

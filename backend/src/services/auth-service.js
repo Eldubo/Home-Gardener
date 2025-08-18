@@ -16,7 +16,7 @@ const userRepo = new UserRepository();
 
 export default class AuthService {
   async register({ nombre, email, password, direccion }) {
-    if (!validator.isValidEmail(email) || !validator.isValidPassword(password) || !isValidString(nombre) || !isValidString(direccion))
+    if (!validator.isValidEmail(email) || !validator.isValidPassword(password) || !validator.isValidString(nombre) || !validator.isValidString(direccion))
       throw new AppError('Formato de campos inválido', StatusCodes.BAD_REQUEST);
 
     const exists = await userRepo.emailExists(email.toLowerCase());
