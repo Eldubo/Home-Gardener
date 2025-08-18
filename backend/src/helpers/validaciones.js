@@ -15,9 +15,16 @@ export class validaciones {
         }
         return true;
     }
+    isEnteroPositivo = async(value, nombreCampo) => {
+        if (value === undefined || value < 0 || !(Number.isInteger(value))) {
+           return false;
+        }
+        return true;
+    }
 
-    isPositivo = async(value, nombreCampo) => {
-        if (value === undefined || value <= 0 || isNaN(value)) {
+
+    isRealPositivo = async(value, nombreCampo) => {
+        if (value === undefined || value < 0 || isNaN(value)) {
            return false;
         }
         return true;

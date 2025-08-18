@@ -1,3 +1,5 @@
+//modificar la temp del ambiente (usando la info procesada por los sensores)
+
 import { Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import DB_config from '../../configs/db_configs.js';

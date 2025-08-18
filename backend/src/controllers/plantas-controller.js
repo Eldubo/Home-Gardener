@@ -1,14 +1,104 @@
+//Listar tipoEspecifico (para llamar a la hora de registrar nueva planta)
+
+
+import { Router } from 'express';
+import PlantaService from '../services/plantas-service.js';
+import authenticateToken from '../middlewares/auth.js';
+
+const router = Router();
+
+const plantaService = new PlantaService();
+
+// Agregar planta
+router.post('/agregar', authenticateToken, async (req, res) => {
+  try {
+    const { nombre, tipo, idAmbiente } = req.body;
+    const idUsuario = req.user.ID;
+    const result = await plantaService.agregarPlanta({ nombre, tipo, idAmbiente: Number(idAmbiente), idUsuario });
+    return res.status(result.status).json({ message: 'Planta creada con éxito' });
+
+  }catch (error) {
+    const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR; 
+        res.status(statusCode).json({
+            success: false,
+            message: error.message,
+            token: ''
+        });
+  }});
+
+// Eliminar planta
+router.delete('/eliminar', authenticateToken, async (req, res) => {
+  try {
+    const { idPlanta } = req.body;
+    const idUsuario = req.user.ID;
+    const result = await plantaService.eliminarPlanta({ idPlanta: Number(idPlanta), idUsuario });
+
+    if (result.error) return res.status(result.status).json({ message: result.message });
+    return res.status(result.status).json({ message: 'Planta eliminada' });
+  } catch (err) {
+    console.error('Error en /eliminar:', err);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Actualizar foto
+router.post('/actualizarFoto', authenticateToken, async (req, res) => {
+  try {
+    const { foto, idPlanta } = req.body;
+    const idUsuario = req.user.ID;
+    const result = await plantaService.actualizarFoto({ foto, idPlanta: Number(idPlanta), idUsuario });
+
+    if (result.error) return res.status(result.status).json({ message: result.message });
+    return res.status(result.status).json({ message: 'Foto actualizada', foto: result.data.Foto });
+  } catch (err) {
+    console.error('Error en /actualizarFoto:', err);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Listar plantas
+router.get('/misPlantas', authenticateToken, async (req, res) => {
+  try {
+    const idUsuario = req.user.ID;
+    const result = await plantaService.listarPlantas(idUsuario);
+
+    if (result.error) return res.status(result.status).json({ message: result.message });
+    return res.status(result.status).json(result.data);
+  } catch (err) {
+    console.error('Error en /misPlantas:', err);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Modificar nombre
+router.put('/modificarNombre', authenticateToken, async (req, res) => {
+  try {
+    const { idPlanta, nuevoNombre } = req.body;
+    const idUsuario = req.user.ID;
+    const result = await plantaService.modificarNombre({ idPlanta: Number(idPlanta), nuevoNombre, idUsuario });
+
+    if (result.error) return res.status(result.status).json({ message: result.message });
+    return res.status(result.status).json({ message: 'Nombre actualizado' });
+  } catch (err) {
+    console.error('Error en /modificarNombre:', err);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+export default router;
+
+
+/*
 import { Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import DB_config from '../../configs/db_configs.js';
 import { Pool } from 'pg';
 import authenticateToken from '../middlewares/auth.js';
 
+
 const router = Router();
 const pool = new Pool(DB_config);
 
-// Validación genérica para números enteros positivos
-const isValidId = (value) => Number.isInteger(value) && value > 0;
 
 // ✅ Agregar planta
 router.post('/agregar', authenticateToken, async (req, res) => {
@@ -107,7 +197,9 @@ router.post('/actualizarFoto', authenticateToken, async (req, res) => {
   }
 
   try {
-    const checkQuery = `SELECT "ID" FROM "Planta" WHERE "ID" = $1 AND "IdUsuario" = $2`;
+
+    //hay q obtener idAmbiente y luego obtener el IdUsuario del ambiente  
+    const checkQuery = `SELECT "IdAmbiente" FROM "Planta" WHERE "ID" = $1`;
     const checkResult = await pool.query(checkQuery, [idPlanta, req.user.ID]);
     if (checkResult.rows.length === 0) {
       return res.status(StatusCodes.FORBIDDEN).json({ message: 'No tienes permiso para actualizar esta planta' });
@@ -179,3 +271,5 @@ router.put('/modificarNombre', authenticateToken, async (req, res) => {
 });
 
 export default router;
+
+*/
