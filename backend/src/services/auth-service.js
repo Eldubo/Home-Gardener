@@ -1,7 +1,8 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import UserRepository from '../repositories/user-repository.js';
-import {validaciones} from '../helpers/validaciones.js'
+import {validaciones} from '../utils/validaciones.js'
+
 import AppError from '../utils/AppError.js';
 import { StatusCodes } from 'http-status-codes';
 
