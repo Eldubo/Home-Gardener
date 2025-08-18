@@ -2,28 +2,28 @@
 export class validaciones {
     isValidEmail = async(email) => {
         // Expresión regular simple para validar emails
-        const re = /^[^@]+@[^@]+\.[^@]+$/;
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!email || typeof email !== 'string' || !re.test(email)) {
            return false;
         }
         return true;
     }
 
-    isValidString = async(string, nombreCampo) => {
+    isValidString = async(string) => {
        if (!string || typeof string !== 'string' || string.trim() === '' || string.length < 3) {
             return false;
         }
         return true;
     }
 
-    isPositivo = async(value, nombreCampo) => {
+    isPositivo = async(value) => {
         if (value === undefined || value <= 0 || isNaN(value)) {
            return false;
         }
         return true;
     }
 
-    isValidDate = async(dateString, nombreCampo) => { 
+    isValidDate = async(dateString) => { 
         const date = new Date(dateString);
         let ret = true;
         if (isNaN(date.getTime())) {
