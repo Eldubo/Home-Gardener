@@ -9,6 +9,7 @@ return (
       <View style={styles.container}>
       <TextInput placeholder="Nombre"/>
       <CheckBox value={modulo} onValueChange={setModulo} style={styles.checkbox}/>
+      <Text>Conectar a un Ambiente: {ambiente ? <DropdownMarcas ambientes={ambientes} /> : 'No hay ambientes creados'}</Text>
       <Text>Conectar a un modulo: {modulo ? <DropdownMarcas modulos={modulos} /> : 'No hay modulos cerca'}</Text>
       <TouchableOpacity style={styles.botonAgregar} onPress={() => navigation.navigate('PlantasScreen')}>
         <Text style={styles.textoBoton}>Agregar planta</Text>
