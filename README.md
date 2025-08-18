@@ -1,3 +1,5 @@
+## ANTES DE HACER CAMBIOS CREAR UNA BRANCH Y HACER PULL REQUEST!!
+
 # Home Gardener
 
 Aplicación de **gestión de plantas y jardines** con *backend* en Node.js/Express + PostgreSQL y *frontend* móvil con React Native (Expo).

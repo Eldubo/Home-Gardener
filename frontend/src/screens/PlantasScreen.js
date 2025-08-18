@@ -50,6 +50,9 @@ export default function PlantasScreen({ navigation }) {
         <TouchableOpacity style={styles.botonAgregar} onPress={() => Alert.alert('Agregar', 'Función de agregar planta')}>
           <Text style={styles.textoBoton}>Agregar planta</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.botonAgregar} onPress={() => Alert.alert('Agregar', 'Función de agregar ambiente')}>
+          <Text style={styles.textoBoton}>Agregar ambiente</Text>
+          </TouchableOpacity>
       </View>
     </View>
   );
