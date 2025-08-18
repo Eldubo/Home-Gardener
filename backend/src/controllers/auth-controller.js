@@ -9,7 +9,7 @@ const authService = new AuthService();
 // Registro
 router.post('/register', async (req, res) => {
   try {
-    const { user, token } = await AuthService.register(req.body);
+    const { user, token } = await authService.register(req.body);
     res.status(StatusCodes.CREATED).json({ message: 'Usuario registrado exitosamente', user, token });
   } catch (error) {
     const statusCode = error.statusCode || StatusCodes.BAD_REQUEST;  // 500 por defecto
