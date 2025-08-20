@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "c94d5f8e-edf5-4f71-8a33-0f273394c75e",
+		"_postman_id": "f01e5206-587a-4053-b691-2dfc2f111ba0",
 		"name": "New Collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -146,7 +146,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"nombre\": \"tomate\",\r\n  \"tipo\": \"Tomate\",\r\n  \"idAmbiente\": 2\r\n}",
+					"raw": "{\r\n  \"nombre\": \"tomatitiopiooo\",\r\n  \"tipo\": \"Tomate\",\r\n  \"idAmbiente\": 2\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -501,6 +501,62 @@
 						"api",
 						"plantas",
 						"actualizarFoto"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getInfoPlanta",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/plantas/getInfoPlanta?idPlanta=23",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"plantas",
+						"getInfoPlanta"
+					],
+					"query": [
+						{
+							"key": "idPlanta",
+							"value": "23"
+						}
 					]
 				}
 			},
