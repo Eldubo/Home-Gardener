@@ -13,7 +13,8 @@ import {
   BienvenidoScreen, 
   ForgotPasswordScreen, 
   EditarPerfilScreen, 
-  HealthCheck
+  HealthCheck,
+  InfoPlanta
 } from '../screens'
 
 import Layout from '../components/Layout';
@@ -70,6 +71,13 @@ export default function AppNavigator() {
       </Stack.Screen>
 
       <Stack.Screen name="EditarPerfil">
+        {props => (
+          <Layout navigation={props.navigation}>
+            <EditarPerfilScreen {...props} />
+          </Layout>
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="InfoPlanta">
         {props => (
           <Layout navigation={props.navigation}>
             <EditarPerfilScreen {...props} />

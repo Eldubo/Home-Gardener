@@ -1,25 +1,61 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import Ionicons from 'react-native-vector-icons/MaterialCommunityIcons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function PlantasScreen({ navigation }) {
   const [plantas, setPlantas] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simular carga de datos de plantas
-    setTimeout(() => {
-      setPlantas([
-        { id: 1, nombre: 'Tomate', estado: 'Saludable', imagen: require('../../assets/image1.png') },
-        { id: 2, nombre: 'Lechuga', estado: 'Necesita agua', imagen: require('../../assets/image1.png') },
-        { id: 3, nombre: 'Pimiento', estado: 'En crecimiento', imagen: require('../../assets/image1.png') },
-      ]);
+    const fetchPlantas = async () => {
+      setLoading(true);
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if (!token) {
+          Alert.alert('Error', 'No se encontró el token de usuario');
+          setLoading(false);
+          return;
+        }
+        const response = await fetch('http://localhost:3000/api/plantas/misPlantas', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          Alert.alert('Error', errorData.message || 'No se pudieron obtener las plantas');
+          setPlantas([]);
+        } else {
+          const data = await response.json();
+          setPlantas(
+            data.map((planta) => ({
+              id: planta.ID,
+              nombre: planta.Nombre,
+              estado: planta.Tipo,
+              imagen: planta.Foto
+                ? { uri: planta.Foto }
+                : require('../../assets/image1.png'),
+            }))
+          );
+        }
+      } catch (error) {
+        Alert.alert('Error', 'No se pudo conectar con el servidor');
+        setPlantas([]);
+      }
       setLoading(false);
-    }, 1000);
+    };
+
+    fetchPlantas();
   }, []);
 
   const renderPlanta = ({ item }) => (
-    <TouchableOpacity style={styles.card} onPress={() => Alert.alert('Detalle', `Planta: ${item.nombre}`)}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => navigation.navigate('InfoPlanta', { idPlanta: item.id })}
+    >
       <Image source={item.imagen} style={styles.imagen} />
       <View style={styles.textContainer}>
         <Text style={styles.nombre}>{item.nombre}</Text>
@@ -32,6 +68,7 @@ export default function PlantasScreen({ navigation }) {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#22A45D" />
         <Text>Cargando plantas...</Text>
       </View>
     );
@@ -46,13 +83,20 @@ export default function PlantasScreen({ navigation }) {
           renderItem={renderPlanta}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.lista}
+          ListEmptyComponent={<Text>No tienes plantas registradas.</Text>}
         />
-        <TouchableOpacity style={styles.botonAgregar} onPress={() => Alert.alert('Agregar', 'Función de agregar planta')}>
+        <TouchableOpacity
+          style={styles.botonAgregar}
+          onPress={() => Alert.alert('Agregar', 'Función de agregar planta')}
+        >
           <Text style={styles.textoBoton}>Agregar planta</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.botonAgregar} onPress={() => Alert.alert('Agregar', 'Función de agregar ambiente')}>
+        <TouchableOpacity
+          style={styles.botonAgregar}
+          onPress={() => Alert.alert('Agregar', 'Función de agregar ambiente')}
+        >
           <Text style={styles.textoBoton}>Agregar ambiente</Text>
-          </TouchableOpacity>
+        </TouchableOpacity>
       </View>
     </View>
   );
