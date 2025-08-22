@@ -1,5 +1,5 @@
 import plantaRepository from '../repositories/plantas-repository.js';
-import { validaciones } from '../helpers/validaciones.js';
+import { validaciones } from '../utils/validaciones.js';
 import { StatusCodes } from 'http-status-codes';
 
 const plantaRepo = new plantaRepository();

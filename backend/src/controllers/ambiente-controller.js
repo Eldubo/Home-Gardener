@@ -9,6 +9,7 @@ const ambienteService = new AmbienteService();
 // Agregar ambiente
 router.post('/agregar', authenticateToken, async (req, res) => {
   try {
+    console.log('REQ.USER:', req.user); 
     const idUsuario = req.user.ID;
     const result = await ambienteService.agregar({ ...req.body, idUsuario });
     res.status(StatusCodes.CREATED).json({

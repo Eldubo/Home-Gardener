@@ -2,13 +2,12 @@ import AmbienteRepository from '../repositories/ambiente-repository.js';
 import AppError from '../utils/AppError.js';
 import { StatusCodes } from 'http-status-codes';
 import { validaciones } from '../utils/validaciones.js';
-
 const repo = new AmbienteRepository();
 const validator = new validaciones();
 
 export default class AmbienteService {
   async agregar({ nombre, idUsuario }) {
-    if (!(await validator.isValidString(nombre)) )
+    if (!(await validator.isValidString(nombre)) || !idUsuario)
       throw new AppError('Valores de campos inválidos', StatusCodes.BAD_REQUEST);
 
     const ambiente = await repo.buscarAmbiente(nombre, idUsuario);
