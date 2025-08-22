@@ -10,12 +10,6 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const PLANTS = [
-  { id: 1, name: "Albahaca", note: "Fue regada a las 5:02", status: "ok" },
-  { id: 2, name: "Tomate", note: "No recibe la suficiente cantidad de luz", status: "warn" },
-  { id: 3, name: "Frutilla", note: "Recibe demasiada luz", status: "alert" },
-];
-
 const statusColor = {
   ok: "#2ecc71",
   warn: "#f1c40f",
@@ -25,7 +19,21 @@ const statusColor = {
 export default function HomeScreen({ navigation }) {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const [notifications, setNotifications] = useState([]);
+  const [notifLoading, setNotifLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [notifError, setNotifError] = useState(null);
+  
+  const normalizeNotifications = (items) => {
+    if (!Array.isArray(items)) return [];
+    return items.map((it, idx) => ({
+      id: it.id ?? it.ID ?? idx,
+      name: it.name ?? it.nombre ?? it.plantName ?? 'Sin nombre',
+      note: it.note ?? it.nota ?? it.mensaje ?? '',
+      status: (it.status ?? it.estado ?? 'ok').toLowerCase(), // 'ok' | 'warn' | 'alert'
+    }));
+  };
+  
   useEffect(() => {
     const fetchProfile = async () => {
       const token = await AsyncStorage.getItem('token');
@@ -33,14 +41,12 @@ export default function HomeScreen({ navigation }) {
         setLoading(false);
         return;
       }
-
       try {
         const res = await fetch('http://localhost:3000/api/auth/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         if (!res.ok) throw new Error('Token inválido o expirado');
-
         const data = await res.json();
         setUserData(data.user || data);
       } catch (e) {
@@ -49,8 +55,36 @@ export default function HomeScreen({ navigation }) {
         setLoading(false);
       }
     };
-
     fetchProfile();
+
+    
+  }, []);
+  useEffect(() => {
+    const fetchNotificaciones = async () => {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        setNotifLoading(false);
+        return;
+      }
+  
+      try {
+        const res = await fetch('http://localhost:3000/api/notificaciones', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+  
+        if (!res.ok) throw new Error('Error al obtener notificaciones');
+  
+        const data = await res.json();
+        setNotifications(normalizeNotifications(data));
+      } catch (e) {
+        console.log('Error al cargar notificaciones:', e);
+        setNotifError(e.message);
+      } finally {
+        setNotifLoading(false);
+      }
+    };
+  
+    fetchNotificaciones();
   }, []);
 
   if (loading) return <Text style={styles.loading}>Cargando...</Text>;
@@ -89,27 +123,32 @@ export default function HomeScreen({ navigation }) {
         <Text style={styles.greetingName}>{userData.nombre}</Text>
       </View>
 
-      {/* Lista de plantas */}
+      {/* Lista de notificaciones */}
       <View style={styles.list}>
-        {PLANTS.map((p) => (
-          <View key={p.id} style={styles.card}>
-            <View style={styles.cardLeft}>
-              <Text style={styles.cardTitle}>{p.name}</Text>
-              <Text
-                style={[
-                  styles.cardNote,
-                  p.status === "ok" && { color: "#6c757d" },
-                  p.status === "warn" && { color: "#d39e00" },
-                  p.status === "alert" && { color: "#e35d6a" },
-                ]}
-                numberOfLines={2}
-              >
-                {p.note}
-              </Text>
-            </View>
-            <View style={[styles.statusDot, { backgroundColor: statusColor[p.status] }]} />
-          </View>
-        ))}
+      {notifications.map((p) => (
+        <View key={p.id} style={styles.card}>
+        <View style={styles.cardLeft}>
+        <Text style={styles.cardTitle}>{p.name}</Text>
+        <Text
+          style={[
+            styles.cardNote,
+            p.status === "ok" && { color: "#6c757d" },
+            p.status === "warn" && { color: "#d39e00" },
+            p.status === "alert" && { color: "#e35d6a" },
+          ]}
+          numberOfLines={2}
+        >
+        {p.note}
+        </Text>
+      </View>
+      <View
+        style={[
+          styles.statusDot,
+          { backgroundColor: statusColor[p.status] || statusColor.ok },
+        ]}
+      />
+  </View>
+))}
       </View>
 
       {/* Botón para ChatBot */}
