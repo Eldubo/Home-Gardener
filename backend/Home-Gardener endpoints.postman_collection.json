@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "6db4e920-64f5-461f-ab7f-c37f41723b69",
+		"_postman_id": "8e5325ca-8f99-4c86-a882-85f4381aa31c",
 		"name": "Home-Gardener endpoints",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -157,7 +157,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"idPlanta\": 6\r\n}",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -165,7 +165,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/api/sensores/datosSensores",
+							"raw": "http://localhost:3000/api/sensores/datosSensores?idPlanta=23",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -175,6 +175,12 @@
 								"api",
 								"sensores",
 								"datosSensores"
+							],
+							"query": [
+								{
+									"key": "idPlanta",
+									"value": "23"
+								}
 							]
 						}
 					},
@@ -196,7 +202,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3000/api/sensores/ultRiego",
+							"raw": "http://localhost:3000/api/sensores/ultRiego?idPlanta=23",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -206,6 +212,172 @@
 								"api",
 								"sensores",
 								"ultRiego"
+							],
+							"query": [
+								{
+									"key": "idPlanta",
+									"value": "23"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Conectar a modulo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"idPlanta\": 23,\r\n  \"idModulo\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/sensores/conectarModulo",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"sensores",
+								"conectarModulo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Desconectar Modulo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"idPlanta\": 23\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/sensores/desconectarModulo",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"sensores",
+								"desconectarModulo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Subir datos planta",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"idPlanta\": 23,\r\n  \"temperatura\": 24.5,\r\n  \"humedad\": 60,\r\n  \"fecha\": \"2025-08-22T12:34:56.789Z\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/sensores/subirDatosPlanta",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"sensores",
+								"subirDatosPlanta"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Registrar ultimo riego",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"idPlanta\": 23,\r\n  \"fecha\": \"2025-08-22T12:00:00.000Z\",\r\n  \"duracionRiego\": 15\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/sensores/registrarUltRiego",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"sensores",
+								"registrarUltRiego"
 							]
 						}
 					},
@@ -530,7 +702,10 @@
 			"name": "New Request",
 			"request": {
 				"method": "GET",
-				"header": []
+				"header": [],
+				"url": {
+					"raw": ""
+				}
 			},
 			"response": []
 		}
