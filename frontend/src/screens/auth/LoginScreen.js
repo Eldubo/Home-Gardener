@@ -73,7 +73,7 @@ export default function LoginScreen({ navigation, baseUrl = "http://localhost:30
           secureTextEntry={!showPassword}
           value={password}
           onChangeText={setPassword}
-          style={[styles.input, { flex: 1, marginBottom: 0 }]}
+          style={styles.passwordInput}
         />
         <TouchableOpacity
           onPress={() => setShowPassword(!showPassword)}
@@ -101,60 +101,68 @@ export default function LoginScreen({ navigation, baseUrl = "http://localhost:30
   );
 }
 
+const GREEN = "#15A266";
+const LIGHT_BG = "#EAF8EE";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: LIGHT_BG,
     paddingHorizontal: 24,
-    paddingVertical: 32,
     justifyContent: 'center',
-    backgroundColor: '#F0FFF0',
   },
   input: {
-    marginBottom: 18,
-    paddingVertical: 16,
+    backgroundColor: '#CFF1E2',
+    height: 48,
+    borderRadius: 10,
     paddingHorizontal: 14,
+    color: '#1a1a1a',
+    fontSize: 16,
+    marginBottom: 18,
     borderWidth: 1,
-    borderColor: '#A5D6A7',
-    borderRadius: 12,
-    backgroundColor: '#FFFFFF',
-    color: '#333',
-    fontSize: 18,
+    borderColor: '#B2DFDB',
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 18,
+    backgroundColor: '#CFF1E2',
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#A5D6A7',
-    borderRadius: 12,
-    backgroundColor: '#FFFFFF',
+    borderColor: '#B2DFDB',
+    marginBottom: 18,
+    height: 48,
+    paddingRight: 8,
+  },
+  passwordInput: {
+    flex: 1,
+    paddingHorizontal: 14,
+    color: '#1a1a1a',
+    fontSize: 16,
   },
   eyeIcon: {
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
   },
   error: {
     color: '#D32F2F',
-    marginBottom: 12,
+    backgroundColor: '#FFEBEE',
+    padding: 8,
+    borderRadius: 6,
+    marginBottom: 10,
     textAlign: 'center',
     fontSize: 15,
   },
   button: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
     marginTop: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
+    height: 48,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: GREEN,
     elevation: 2,
   },
   buttonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 18,
-    letterSpacing: 1,
+    color: '#fff',
+    fontWeight: '800',
+    fontSize: 17,
   },
 });

@@ -1,7 +1,10 @@
 // src/screens/RegisterScreen.js
 import React, { useMemo, useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from "react-native";
 import { createAPI } from "../../services/api";
+
+const GREEN = "#15A266";
+const LIGHT_BG = "#EAF8EE";
 
 export default function RegisterScreen({ navigation, baseUrl = "http://localhost:3000" }) {
   const api = useMemo(() => createAPI(baseUrl), [baseUrl]);
@@ -90,23 +93,58 @@ export default function RegisterScreen({ navigation, baseUrl = "http://localhost
         style={styles.input}
       />
       {error ? <Text style={styles.error}>{error}</Text> : null}
-      <Button
-        title={loading ? "Cargando..." : "Registrarme"}
+      <TouchableOpacity
+        style={styles.button}
         onPress={handleRegister}
         disabled={loading}
-      />
+      >
+        <Text style={styles.buttonText}>
+          {loading ? "Cargando..." : "Registrarme"}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, justifyContent: "center" },
-  input: {
-    marginBottom: 12,
-    padding: 8,
-    borderWidth: 1,
-    borderRadius: 4,
-    backgroundColor: "#fff",
+  container: {
+    flex: 1,
+    backgroundColor: LIGHT_BG,
+    paddingHorizontal: 24,
+    justifyContent: 'center',
   },
-  error: { color: "red", marginBottom: 10 },
+  input: {
+    backgroundColor: '#CFF1E2',
+    height: 48,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    color: '#1a1a1a',
+    fontSize: 16,
+    marginBottom: 18,
+    borderWidth: 1,
+    borderColor: '#B2DFDB',
+  },
+  error: {
+    color: '#D32F2F',
+    backgroundColor: '#FFEBEE',
+    padding: 8,
+    borderRadius: 6,
+    marginBottom: 10,
+    textAlign: 'center',
+    fontSize: 15,
+  },
+  button: {
+    marginTop: 8,
+    height: 48,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: GREEN,
+    elevation: 2,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '800',
+    fontSize: 17,
+  },
 });
