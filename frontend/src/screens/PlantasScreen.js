@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
-import Ionicons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function PlantasScreen({ navigation }) {
@@ -61,7 +61,7 @@ export default function PlantasScreen({ navigation }) {
         <Text style={styles.nombre}>{item.nombre}</Text>
         <Text style={styles.estado}>{item.estado}</Text>
       </View>
-      <Ionicons name="arrow-forward-circle-outline" size={24} color="#22A45D" />
+      <MaterialCommunityIcons name="arrow-right-circle-outline" size={24} color="#22A45D" />
     </TouchableOpacity>
   );
 
@@ -75,29 +75,27 @@ export default function PlantasScreen({ navigation }) {
   }
 
   return (
-    <View style={styles.separatorBottom}>
-      <View style={styles.container}>
-        <Text style={styles.titulo}>Mis Plantas</Text>
-        <FlatList
-          data={plantas}
-          renderItem={renderPlanta}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={styles.lista}
-          ListEmptyComponent={<Text>No tienes plantas registradas.</Text>}
-        />
-        <TouchableOpacity
-          style={styles.botonAgregar}
-          onPress={() => Alert.alert('Agregar', 'Función de agregar planta')}
-        >
-          <Text style={styles.textoBoton}>Agregar planta</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.botonAgregar}
-          onPress={() => Alert.alert('Agregar', 'Función de agregar ambiente')}
-        >
-          <Text style={styles.textoBoton}>Agregar ambiente</Text>
-        </TouchableOpacity>
-      </View>
+    <View style={styles.container}>
+      <Text style={styles.titulo}>Mis Plantas</Text>
+      <FlatList
+        data={plantas}
+        renderItem={renderPlanta}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.lista}
+        ListEmptyComponent={<Text>No tienes plantas registradas.</Text>}
+      />
+      <TouchableOpacity
+        style={styles.botonAgregarPlanta}
+        onPress={() => Alert.alert('Agregar', 'Función de agregar planta')}
+      >
+        <Text style={styles.textoBoton}>Agregar planta</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.botonAgregarAmbiente}
+        onPress={() => Alert.alert('Agregar', 'Función de agregar ambiente')}
+      >
+        <Text style={styles.textoBoton}>Agregar ambiente</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -118,16 +116,6 @@ const styles = StyleSheet.create({
   },
   lista: {
     paddingBottom: 20,
-  },
-  separatorTop: {
-    borderTopWidth: 1,
-    borderColor: '#A4D4B4',
-    marginVertical: 10,
-  },
-  separatorBottom: {
-    borderBottomWidth: 1,
-    borderColor: '#A4D4B4',
-    marginVertical: 10,
   },
   card: {
     flexDirection: 'row',
@@ -161,12 +149,19 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#888888',
   },
-  botonAgregar: {
+  botonAgregarPlanta: {
     backgroundColor: '#22A45D',
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 16,
+  },
+  botonAgregarAmbiente: {
+    backgroundColor: '#1E8449',
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
   },
   textoBoton: {
     color: '#fff',

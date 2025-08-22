@@ -178,17 +178,20 @@ router.put('/modificarNombre', authenticateToken, async (req, res) => {
   }
 });
 
+
 router.get('/getInfoPlanta', authenticateToken, async (req, res) => {
-  let { idPlanta } = req.query;
-  idPlanta = Number(idPlanta);
-
-  if (!isValidId(idPlanta)) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'idPlanta es obligatorio y debe ser un número válido' });
-  }
-
   try {
+    let { idPlanta } = req.query;
+    idPlanta = Number(idPlanta);
+
+    if (!isValidId(idPlanta)) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'idPlanta es obligatorio y debe ser un número válido' });
+    }
+
     const idUsuario = req.user.ID;
-    // Trae info de la planta, ambiente y módulo si existe
+
     const query = `
       SELECT 
         P."ID" AS "idPlanta",
@@ -203,16 +206,21 @@ router.get('/getInfoPlanta', authenticateToken, async (req, res) => {
       LEFT JOIN "Modulo" M ON M."IdPlanta" = P."ID"
       WHERE P."ID" = $1 AND A."IdUsuario" = $2
     `;
-    const result = await pool.query(query, [idPlanta, idUsuario]);
 
-    if (result.rows.length === 0) {
-      return res.status(StatusCodes.NOT_FOUND).json({ message: 'Planta no encontrada o sin permiso' });
+    const { rows } = await pool.query(query, [idPlanta, idUsuario]);
+
+    if (rows.length === 0) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Planta no encontrada o sin permiso' });
     }
 
-    return res.status(StatusCodes.OK).json(result.rows[0]);
+    return res.status(StatusCodes.OK).json(rows[0]);
   } catch (error) {
     console.error('Error en /getInfoPlanta:', error);
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error interno del servidor' });
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Error interno del servidor' });
   }
 });
 

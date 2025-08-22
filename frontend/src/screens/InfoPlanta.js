@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+
 export default function InfoPlanta({ route }) {
   const { idPlanta } = route.params;
   const [planta, setPlanta] = useState(null);
