@@ -28,16 +28,16 @@ export default class UserRepository {
     return result.rows.length > 0;
   }
 
-  async create(nombre, email, password, direccion) {
+  async create(nombre, email, password, direccion, imagen) {
     const query = `
-      INSERT INTO "Usuario" ("Nombre", "Email", "Password", "Direccion")
-      VALUES ($1, $2, $3, $4)
-      RETURNING "ID", "Nombre", "Email", "Direccion"
+      INSERT INTO "Usuario" ("Nombre", "Email", "Password", "Direccion", "Foto")
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING "ID", "Nombre", "Email", "Direccion", "Foto"
     `;
-    const values = [nombre, email, password, direccion];
+    const values = [nombre, email, password, direccion, imagen || null];
     const result = await pool.query(query, values);
     return result.rows[0];
-  }
+  }  
 
   async update (id, fields){
     const keys = Object.keys(fields);

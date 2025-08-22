@@ -15,24 +15,27 @@ const userRepo = new UserRepository();
 
 
 export default class AuthService {
-  async register({ nombre, email, password, direccion }) {
+  async register({ nombre, email, password, direccion, imagen }) {
     if (!validator.isValidEmail(email) || !validator.isValidPassword(password) || !validator.isValidString(nombre) || !validator.isValidString(direccion))
       throw new AppError('Formato de campos inválido', StatusCodes.BAD_REQUEST);
-
+  
     const exists = await userRepo.emailExists(email.toLowerCase());
     if (exists) throw new AppError('El email ya está registrado', StatusCodes.CONFLICT);
-
+  
     const hashedPassword = await bcrypt.hash(password, 10);
+  
     const newUser = await userRepo.create(
       nombre.trim(),
       email.toLowerCase().trim(),
       hashedPassword,
-      direccion.trim()
+      direccion.trim(),
+      imagen || null 
     );
-
+  
     const token = jwt.sign({ id: newUser.ID, email: newUser.Email }, JWT_SECRET, { expiresIn: '1d' });
     return { user: newUser, token };
   }
+  
 
   async login({ email, password }) {
 
