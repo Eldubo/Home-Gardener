@@ -74,6 +74,8 @@ router.get('/ultRiego', authenticateToken, async (req, res) => {
   }
 });
 
+
+
 // Conectar módulo (PUT)
 router.put('/conectarModulo', authenticateToken, async (req, res) => {
   const { idPlanta, idModulo } = req.body;
@@ -83,10 +85,22 @@ router.put('/conectarModulo', authenticateToken, async (req, res) => {
 
   try {
     // Verificar que el módulo exista
-    const checkQuery = 'SELECT "ID" FROM "Modulo" WHERE "ID" = $1';
-    const checkResult = await pool.query(checkQuery, [idModulo]);
+    let checkQuery = 'SELECT * FROM "Modulo" WHERE "ID" = $1';
+    let checkResult = await pool.query(checkQuery, [idModulo]);
     if (checkResult.rows.length === 0) {
       return res.status(StatusCodes.NOT_FOUND).json({ message: 'No se encuentra el módulo' });
+    }
+    //Verifica que la planta sea del usuario (no debería haber problemas con esto igual)
+    checkQuery = 'Select "A.IdUsuario", "P.Nombre" FROM "Ambiente" A INNER JOIN "Planta" P ON "Ambiente.ID" = "Planta.IdAmbiente" WHERE "P.ID" = $1';
+    checkResult = await pool.query(checkQuery, [idPlanta]);
+    if (checkResult.rows.length === 0) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'No tienes permisos para actualizar esta planta' });
+    }
+    //Chequear q planta no tenga modulo asignado
+    checkQuery = 'SELECT * FROM "Modulo" WHERE "IdPlanta" = $1';
+    checkResult = await pool.query(checkQuery, [idPlanta]);
+    if (checkResult.rows.length !== 0) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Esta planta ya tiene un módulo asignado' });
     }
 
     // Conectar el módulo a la planta
@@ -102,6 +116,7 @@ router.put('/conectarModulo', authenticateToken, async (req, res) => {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error interno del servidor' });
   }
 });
+
 
 // Desconectar módulo (DELETE)
 router.delete('/desconectarModulo', authenticateToken, async (req, res) => {
