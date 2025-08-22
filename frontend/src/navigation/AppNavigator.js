@@ -12,12 +12,11 @@ import {
   PerfilScreen, 
   BienvenidoScreen, 
   ForgotPasswordScreen, 
-  EditarPerfilScreen, 
-  HealthCheck,
-  InfoPlanta
+  EditarPerfilScreen,
+  InfoPlantaScreen, // ← ahora usamos el nombre correcto
 } from '../screens'
 
-import Layout from '../components/Layout';
+import Layout from '../components/Layout';  
 
 const Stack = createNativeStackNavigator();
 
@@ -77,10 +76,11 @@ export default function AppNavigator() {
           </Layout>
         )}
       </Stack.Screen>
+
       <Stack.Screen name="InfoPlanta">
         {props => (
           <Layout navigation={props.navigation}>
-            <EditarPerfilScreen {...props} />
+            <InfoPlantaScreen {...props} />
           </Layout>
         )}
       </Stack.Screen>
