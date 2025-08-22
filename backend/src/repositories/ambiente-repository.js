@@ -4,13 +4,13 @@ import DB_config from '../configs/db_configs.js';
 const pool = new Pool(DB_config);
 
 export default class AmbienteRepository {
-  async create(nombre, temperatura, idUsuario) {
+  async create(nombre, idUsuario) {
     const query = `
-      INSERT INTO "Ambiente" ("Nombre", "Temperatura", "IdUsuario")
-      VALUES ($1, $2, $3)
+      INSERT INTO "Ambiente" ("Nombre", "IdUsuario")
+      VALUES ($1, $2)
       RETURNING "ID"
     `;
-    const values = [nombre, temperatura, idUsuario];
+    const values = [nombre, idUsuario];
     const result = await pool.query(query, values);
     return result.rows[0];
   }
@@ -36,6 +36,11 @@ export default class AmbienteRepository {
   async findById(id) {
     const query = `SELECT "ID", "IdUsuario" FROM "Ambiente" WHERE "ID" = $1`;
     const result = await pool.query(query, [id]);
+    return result.rows[0];
+  }
+  async buscarAmbiente(nombre, idUsuario) {
+    const query = `SELECT * FROM "Ambiente" WHERE "IdUsuario" = $1 AND "Nombre" = $2`;
+    const result = await pool.query(query, [idUsuario, nombre]);
     return result.rows[0];
   }
 

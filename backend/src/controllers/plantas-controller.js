@@ -4,6 +4,8 @@
 import { Router } from 'express';
 import PlantaService from '../services/plantas-service.js';
 import authenticateToken from '../middlewares/auth.js';
+import { StatusCodes } from 'http-status-codes';
+
 
 const router = Router();
 
@@ -15,7 +17,8 @@ router.post('/agregar', authenticateToken, async (req, res) => {
     const { nombre, tipo, idAmbiente } = req.body;
     const idUsuario = req.user.ID;
     const result = await plantaService.agregarPlanta({ nombre, tipo, idAmbiente: Number(idAmbiente), idUsuario });
-    return res.status(result.status).json({ message: 'Planta creada con éxito' });
+    const mensaje = result.message || 'Planta creada con éxito';
+    return res.status(result.status).json({ mensaje });
 
   }catch (error) {
     const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR; 

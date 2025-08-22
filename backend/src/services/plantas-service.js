@@ -9,7 +9,7 @@ export default class  plantaService {
   async agregarPlanta({ nombre, tipo, idAmbiente, idUsuario }) {
     if (!nombre || typeof nombre !== 'string' ||
         !tipo || typeof tipo !== 'string' ||
-        !isValidId(idAmbiente)) {
+        !validator.isEnteroPositivo(idAmbiente)) {
       return { error: true, status: StatusCodes.BAD_REQUEST, message: 'Datos inválidos' };
     }
 
@@ -20,7 +20,7 @@ export default class  plantaService {
 
     const ambienteOk = await plantaRepo.verificarAmbiente(idAmbiente, idUsuario);
     if (ambienteOk.length === 0) {
-      return { error: true, status: StatusCodes.BAD_REQUEST, message: 'Ambiente no encontrado' };
+      return { error: true, status: StatusCodes.BAD_REQUEST, message: 'Ambiente no encontrado o no tienes permisos' };
     }
 
     const planta = await plantaRepo.insertarPlanta(nombre.trim(), tipo.trim(), idAmbiente);
