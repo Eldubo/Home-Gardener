@@ -15,28 +15,36 @@ const userRepo = new UserRepository();
 
 
 export default class AuthService {
-  async register({ nombre, email, password, direccion }) {
-    if (!validator.isValidEmail(email) || !validator.isValidPassword(password) || !validator.isValidString(nombre) || !validator.isValidString(direccion))
+  async register({ nombre, email, password, direccion, imagen }) {
+    const emailValid = await validator.isValidEmail(email);
+    const passwordValid = await validator.isValidPassword(password);
+    const nombreValid = await validator.isValidString(nombre);
+    const direccionValid = await validator.isValidString(direccion);
+    
+    if (!emailValid || !passwordValid || !nombreValid || !direccionValid)
       throw new AppError('Formato de campos inválido', StatusCodes.BAD_REQUEST);
-
+  
     const exists = await userRepo.emailExists(email.toLowerCase());
     if (exists) throw new AppError('El email ya está registrado', StatusCodes.CONFLICT);
-
+  
     const hashedPassword = await bcrypt.hash(password, 10);
+  
     const newUser = await userRepo.create(
       nombre.trim(),
       email.toLowerCase().trim(),
       hashedPassword,
-      direccion.trim()
+      direccion.trim(),
+      imagen || null 
     );
-
-    const token = jwt.sign({ id: newUser.ID, email: newUser.Email }, JWT_SECRET, { expiresIn: '1d' });
+  
+    const token = jwt.sign({ ID: newUser.ID, email: newUser.Email }, JWT_SECRET, { expiresIn: '1d' });
     return { user: newUser, token };
   }
+  
 
   async login({ email, password }) {
 
-    if (!validator.isValidEmail(email) && !validator.isValidString(password))
+    if (!validator.isValidEmail(email) || !validator.isValidString(password))
       throw new AppError('Formato de campos inválido', StatusCodes.BAD_REQUEST);
 
     const user = await userRepo.findByEmail(email.toLowerCase().trim());
@@ -80,13 +88,13 @@ export default class AuthService {
     }
 
     if (nombre) {
-      if (valida.isValidString(nombre))
+      if (!validator.isValidString(nombre))
         throw new AppError('El nombre debe tener al menos 3 caracteres', StatusCodes.BAD_REQUEST);
       updateFields.Nombre = nombre;
     }
 
     if (direccion) {
-      if (valida.isValidString(direccion))
+      if (!validator.isValidString(direccion))
       throw new AppError('La direccion debe tener al menos 3 caracteres', StatusCodes.BAD_REQUEST);
       updateFields.Direccion = direccion.trim();
     }

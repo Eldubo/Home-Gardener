@@ -31,6 +31,11 @@ export class validaciones {
         }
         return ret;
     }
-    isValidPassword = async(password) => password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password);
+    isValidPassword = async(password) => {
+        if (!password || typeof password !== 'string') {
+            return false;
+        }
+        return password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password);
+    }
 
 }

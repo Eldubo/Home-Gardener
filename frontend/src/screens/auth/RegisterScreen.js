@@ -20,7 +20,7 @@ const GREEN = "#15A266";
 const DARK_GREEN = "#0D5C3C";
 const LIGHT_BG = "#EAF8EE";
 
-export default function RegisterScreen({ navigation, baseUrl = "http://localhost:3000" }) {
+export default function RegisterScreen({ navigation, baseUrl = process.env.EXPO_PUBLIC_API_URL}) {
   const api = useMemo(() => createAPI(baseUrl), [baseUrl]);
 
   const [nombre, setNombre] = useState("");

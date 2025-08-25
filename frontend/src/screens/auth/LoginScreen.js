@@ -17,7 +17,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAPI } from '../../services/api';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-export default function LoginScreen({ navigation, baseUrl = "http://localhost:3000" }) {
+export default function LoginScreen({ navigation, baseUrl = process.env.EXPO_PUBLIC_API_URL }) {
+
   const api = useMemo(() => createAPI(baseUrl), [baseUrl]);
 
   const [email, setEmail] = useState('');
@@ -51,18 +52,30 @@ export default function LoginScreen({ navigation, baseUrl = "http://localhost:30
     }
 
     try {
+
       const { data } = await api.post('/api/auth/login', { email, password });
       await AsyncStorage.setItem('token', data.token);
 
       Alert.alert('Bienvenido', `Hola, ${data.user?.nombre || 'usuario'}!`);
       navigation.navigate('Home');
+
     } catch (e) {
-      const msg =
-        e?.response?.data?.message ||
-        e?.response?.data?.error ||
-        e.message ||
-        'Error en el login';
-      setError(msg);
+      let errorMessage = 'Error en el login';
+      
+      if (e.response) {
+        // El servidor respondió con un código de error
+        errorMessage = e.response.data?.message || 
+                      e.response.data?.error || 
+                      `Error del servidor: ${e.response.status}`;
+      } else if (e.request) {
+        // La solicitud fue hecha pero no se recibió respuesta
+        errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión.';
+      } else {
+        // Algo pasó al configurar la solicitud
+        errorMessage = e.message || 'Error desconocido al realizar la solicitud';
+      }
+      
+      setError(errorMessage);
       console.log('Login error:', e);
     } finally {
       setLoading(false);

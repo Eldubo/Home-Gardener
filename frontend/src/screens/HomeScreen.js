@@ -35,7 +35,7 @@ export default function HomeScreen({ navigation }) {
       }
 
       try {
-        const res = await fetch('http://localhost:3000/api/auth/profile', {
+        const res = await fetch(`${baseUrl}/api/auth/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
