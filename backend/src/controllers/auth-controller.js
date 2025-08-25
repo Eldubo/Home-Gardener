@@ -16,17 +16,11 @@ router.post('/register', (req, res) => {
     }
 
     try {
-      // Validar que llegue la foto
-      if (!req.file) {
-        return res.status(StatusCodes.BAD_REQUEST).json({ 
-          success: false, 
-          message: 'Debe enviar una foto', 
-          token: '' 
-        });
-      }
-
-      // Crear objeto con los datos del usuario
-      const userData = { ...req.body, imagen: req.file.filename };
+      // Crear objeto con los datos del usuario - la imagen es opcional
+      const userData = { 
+        ...req.body, 
+        imagen: req.file ? req.file.filename : null 
+      };
 
       const { user, token } = await authService.register(userData);
 

@@ -83,13 +83,13 @@ export default class AuthService {
     }
 
     if (nombre) {
-      if (valida.isValidString(nombre))
+      if (!validator.isValidString(nombre))
         throw new AppError('El nombre debe tener al menos 3 caracteres', StatusCodes.BAD_REQUEST);
       updateFields.Nombre = nombre;
     }
 
     if (direccion) {
-      if (valida.isValidString(direccion))
+      if (!validator.isValidString(direccion))
       throw new AppError('La direccion debe tener al menos 3 caracteres', StatusCodes.BAD_REQUEST);
       updateFields.Direccion = direccion.trim();
     }

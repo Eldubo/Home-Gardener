@@ -11,14 +11,28 @@ export const uploadFile = (fieldName) => {
     },
     filename: (req, file, cb) => {
       const ext = path.extname(file.originalname);
-      cb(null, `${Date.now()}${ext}`);
+      // Generate unique filename with timestamp and original extension
+      cb(null, `user_${Date.now()}${ext}`);
     }
   });
 
   const fileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) cb(null, true);
-    else cb(new Error('Solo se permiten imágenes'));
+    if (file.mimetype.startsWith('image/')) {
+      // Check file size (limit to 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        return cb(new Error('El tamaño de la imagen no debe exceder los 5MB'));
+      }
+      cb(null, true);
+    } else {
+      cb(new Error('Solo se permiten imágenes'));
+    }
   };
 
-  return multer({ storage, fileFilter }).single(fieldName);
+  return multer({ 
+    storage, 
+    fileFilter,
+    limits: {
+      fileSize: 5 * 1024 * 1024 // 5MB limit
+    }
+  }).single(fieldName);
 };
