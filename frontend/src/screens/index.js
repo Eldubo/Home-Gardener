@@ -3,6 +3,8 @@ export { default as LoginScreen } from '../screens/auth/LoginScreen';
 export { default as RegisterScreen } from '../screens/auth/RegisterScreen';
 export { default as HomeScreen } from '../screens/HomeScreen';
 export { default as PlantasScreen } from '../screens/PlantasScreen';
+export { default as AgregarPlanta } from '../screens/AgregarPlanta';
+export { default as AgregarAmbiente } from '../screens/AgregarAmbiente';
 export { default as QRScreen } from '../screens/QRScreen';
 export { default as InfoScreen } from '../screens/InfoScreen';
 export { default as PerfilScreen } from '../screens/PerfilScreen';

@@ -7,16 +7,19 @@ import {
   RegisterScreen, 
   HomeScreen, 
   PlantasScreen, 
+  AgregarPlanta, 
+  AgregarAmbiente,
   QRScreen,
   InfoScreen, 
   PerfilScreen, 
   BienvenidoScreen, 
   ForgotPasswordScreen, 
   EditarPerfilScreen,
-  InfoPlantaScreen, // ← ahora usamos el nombre correcto
+  InfoPlantaScreen,
 } from '../screens'
 
 import Layout from '../components/Layout';  
+import withLayout from '../utils/withLayout';  // Importa el HOC
 
 const Stack = createNativeStackNavigator();
 
@@ -28,62 +31,17 @@ export default function AppNavigator() {
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-
-      <Stack.Screen name="Home">
-        {props => (
-          <Layout navigation={props.navigation}>
-            <HomeScreen {...props} />
-          </Layout>
-        )}
-      </Stack.Screen>
-
-      <Stack.Screen name="Plantas">
-        {props => (
-          <Layout navigation={props.navigation}>
-            <PlantasScreen {...props} />
-          </Layout>
-        )}
-      </Stack.Screen>
-
-      <Stack.Screen name="QR">
-        {props => (
-          <Layout navigation={props.navigation}>
-            <QRScreen {...props} />
-          </Layout>
-        )}
-      </Stack.Screen>
-
-      <Stack.Screen name="Info">
-        {props => (
-          <Layout navigation={props.navigation}>
-            <InfoScreen {...props} />
-          </Layout>
-        )}
-      </Stack.Screen>
-
-      <Stack.Screen name="Perfil">
-        {props => (
-          <Layout navigation={props.navigation}>
-            <PerfilScreen {...props} />
-          </Layout>
-        )}
-      </Stack.Screen>
-
-      <Stack.Screen name="EditarPerfil">
-        {props => (
-          <Layout navigation={props.navigation}>
-            <EditarPerfilScreen {...props} />
-          </Layout>
-        )}
-      </Stack.Screen>
-
-      <Stack.Screen name="InfoPlanta">
-        {props => (
-          <Layout navigation={props.navigation}>
-            <InfoPlantaScreen {...props} />
-          </Layout>
-        )}
-      </Stack.Screen>
+      
+      {/* Usamos el HOC withLayout para envolver estas pantallas */}
+      <Stack.Screen name="Home" component={withLayout(HomeScreen)} />
+      <Stack.Screen name="Plantas" component={withLayout(PlantasScreen)} />
+      <Stack.Screen name="AgregarPlanta" component={withLayout(AgregarPlanta)} />
+      <Stack.Screen name="AgregarAmbiente" component={withLayout(AgregarAmbiente)} />
+      <Stack.Screen name="QR" component={withLayout(QRScreen)} />
+      <Stack.Screen name="Info" component={withLayout(InfoScreen)} />
+      <Stack.Screen name="Perfil" component={withLayout(PerfilScreen)} />
+      <Stack.Screen name="EditarPerfil" component={withLayout(EditarPerfilScreen)} />
+      <Stack.Screen name="InfoPlanta" component={withLayout(InfoPlantaScreen)} />
     </Stack.Navigator>
   );
 }

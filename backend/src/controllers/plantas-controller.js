@@ -57,6 +57,23 @@ router.post('/agregar', authenticateToken, async (req, res) => {
   }
 });
 
+// ✅ Obtener todos los tipos de planta
+router.get('/tipos', authenticateToken, async (req, res) => {
+  try {
+    const query = `SELECT "Nombre" FROM "TipoEspecifico" ORDER BY "Nombre"`;
+    const result = await pool.query(query);
+    
+    if (result.rows.length === 0) {
+      return res.status(StatusCodes.NOT_FOUND).json({ message: 'No se encontraron tipos de planta' });
+    }
+
+    return res.status(StatusCodes.OK).json(result.rows);
+  } catch (error) {
+    console.error('Error en /tipos:', error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error interno del servidor' });
+  }
+});
+
 // ✅ Eliminar planta
 router.delete('/eliminar', authenticateToken, async (req, res) => {
   let { idPlanta } = req.body;

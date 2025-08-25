@@ -5,14 +5,24 @@ const pool = new Pool(DB_config);
 
 export default class AmbienteRepository {
   async create(nombre, temperatura, idUsuario) {
+    console.log('Repository - create called with:', { nombre, temperatura, idUsuario });
+    
     const query = `
       INSERT INTO "Ambiente" ("Nombre", "Temperatura", "IdUsuario")
       VALUES ($1, $2, $3)
       RETURNING "ID"
     `;
     const values = [nombre, temperatura, idUsuario];
-    const result = await pool.query(query, values);
-    return result.rows[0];
+    console.log('Executing query:', query, 'with values:', values);
+    
+    try {
+      const result = await pool.query(query, values);
+      console.log('Query result:', result.rows[0]);
+      return result.rows[0];
+    } catch (error) {
+      console.log('Database error:', error);
+      throw error;
+    }
   }
 
   async getAllByUserId(idUsuario) {

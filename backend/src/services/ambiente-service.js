@@ -8,10 +8,15 @@ const validator = new validaciones();
 
 export default class AmbienteService {
   async agregar({ nombre, temperatura, idUsuario }) {
-    if (!(await validator.isValidString(nombre)) || !(await validator.isPositivo(Number(temperatura))))
+    console.log('Service - agregar called with:', { nombre, temperatura, idUsuario });
+    
+    if (!(await validator.isValidString(nombre)) || !(await validator.isPositivo(Number(temperatura)))) {
+      console.log('Validation failed');
       throw new AppError('Valores de campos inválidos', StatusCodes.BAD_REQUEST);
+    }
 
     const result = await repo.create(nombre.trim(), Number(temperatura), idUsuario);
+    console.log('Repository result:', result);
     return result;
   }
 

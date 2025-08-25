@@ -38,20 +38,34 @@ export default function LoginScreen({ navigation, baseUrl = "http://localhost:30
     }
 
     try {
-      const { data } = await api.post('/api/auth/login', { email, password });
+      const response = await api.post('/api/auth/login', { email, password });
+      
+      if (response.data && response.data.token) {
+        // guardar token
+        await AsyncStorage.setItem('token', response.data.token);
 
-      // guardar token
-      await AsyncStorage.setItem('token', data.token);
-
-      Alert.alert('Bienvenido', `Hola, ${data.user?.nombre || 'usuario'}!`);
-      navigation.navigate('Home');
+        Alert.alert('Bienvenido', `Hola, ${response.data.user?.nombre || 'usuario'}!`);
+        navigation.navigate('Home');
+      } else {
+        throw new Error('Respuesta del servidor inválida: no se recibió token');
+      }
     } catch (e) {
-      const msg =
-        e?.response?.data?.message ||
-        e?.response?.data?.error ||
-        e.message ||
-        'Error en el login';
-      setError(msg);
+      let errorMessage = 'Error en el login';
+      
+      if (e.response) {
+        // El servidor respondió con un código de error
+        errorMessage = e.response.data?.message || 
+                      e.response.data?.error || 
+                      `Error del servidor: ${e.response.status}`;
+      } else if (e.request) {
+        // La solicitud fue hecha pero no se recibió respuesta
+        errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión.';
+      } else {
+        // Algo pasó al configurar la solicitud
+        errorMessage = e.message || 'Error desconocido al realizar la solicitud';
+      }
+      
+      setError(errorMessage);
       console.log('Login error:', e);
     } finally {
       setLoading(false);
