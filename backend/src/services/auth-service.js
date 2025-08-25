@@ -16,7 +16,12 @@ const userRepo = new UserRepository();
 
 export default class AuthService {
   async register({ nombre, email, password, direccion, imagen }) {
-    if (!validator.isValidEmail(email) || !validator.isValidPassword(password) || !validator.isValidString(nombre) || !validator.isValidString(direccion))
+    const emailValid = await validator.isValidEmail(email);
+    const passwordValid = await validator.isValidPassword(password);
+    const nombreValid = await validator.isValidString(nombre);
+    const direccionValid = await validator.isValidString(direccion);
+    
+    if (!emailValid || !passwordValid || !nombreValid || !direccionValid)
       throw new AppError('Formato de campos inválido', StatusCodes.BAD_REQUEST);
   
     const exists = await userRepo.emailExists(email.toLowerCase());
@@ -32,14 +37,14 @@ export default class AuthService {
       imagen || null 
     );
   
-    const token = jwt.sign({ id: newUser.ID, email: newUser.Email }, JWT_SECRET, { expiresIn: '1d' });
+    const token = jwt.sign({ ID: newUser.ID, email: newUser.Email }, JWT_SECRET, { expiresIn: '1d' });
     return { user: newUser, token };
   }
   
 
   async login({ email, password }) {
 
-    if (!validator.isValidEmail(email) && !validator.isValidString(password))
+    if (!validator.isValidEmail(email) || !validator.isValidString(password))
       throw new AppError('Formato de campos inválido', StatusCodes.BAD_REQUEST);
 
     const user = await userRepo.findByEmail(email.toLowerCase().trim());

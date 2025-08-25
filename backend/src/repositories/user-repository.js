@@ -14,7 +14,7 @@ export default class UserRepository {
 
   async findById(id) {
     const result = await pool.query(
-      'SELECT "ID", "Nombre", "Email", "Direccion" FROM "Usuario" WHERE "ID" = $1',
+      'SELECT "ID", "Nombre", "Email", "Direccion", "Foto" FROM "Usuario" WHERE "ID" = $1',
       [id]
     );
     return result.rows[0];
@@ -46,7 +46,7 @@ export default class UserRepository {
     const setQuery = keys.map((key, i) => `"${key}" = $${i + 1}`).join(', ');
     const values = [...Object.values(fields), id];
 
-    const query = `UPDATE "Usuario" SET ${setQuery} WHERE "ID" = $${keys.length + 1} RETURNING "ID", "Nombre", "Email", "Direccion"`;
+    const query = `UPDATE "Usuario" SET ${setQuery} WHERE "ID" = $${keys.length + 1} RETURNING "ID", "Nombre", "Email", "Direccion", "Foto"`;
     const result = await pool.query(query, values);
     return result.rows[0];
   }
