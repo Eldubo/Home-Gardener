@@ -11,7 +11,7 @@ const pool = new Pool(DB_config);
 // Obtener datos de los sensores (requiere autenticación)
 router.get('/datosSensores', authenticateToken, async (req, res) => {
   const idPlanta = Number(req.query.idPlanta);
-  const {email, password} = req.body;
+  
   if (!Number.isInteger(idPlanta)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ message: 'idPlanta es obligatorio y debe ser numérico' });
   }
@@ -90,12 +90,19 @@ router.put('/conectarModulo', authenticateToken, async (req, res) => {
     if (checkResult.rows.length === 0) {
       return res.status(StatusCodes.NOT_FOUND).json({ message: 'No se encuentra el módulo' });
     }
-    //Verifica que la planta sea del usuario (no debería haber problemas con esto igual)
-    checkQuery = 'Select "A.IdUsuario", "P.Nombre" FROM "Ambiente" A INNER JOIN "Planta" P ON "Ambiente.ID" = "Planta.IdAmbiente" WHERE "P.ID" = $1';
+    
+    //Verifica que la planta sea del usuario
+    checkQuery = `
+      SELECT "A"."IdUsuario", "P"."Nombre" 
+      FROM "Ambiente" A 
+      INNER JOIN "Planta" P ON "A"."ID" = "P"."IdAmbiente" 
+      WHERE "P"."ID" = $1
+    `;
     checkResult = await pool.query(checkQuery, [idPlanta]);
     if (checkResult.rows.length === 0) {
       return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'No tienes permisos para actualizar esta planta' });
     }
+    
     //Chequear q planta no tenga modulo asignado
     checkQuery = 'SELECT * FROM "Modulo" WHERE "IdPlanta" = $1';
     checkResult = await pool.query(checkQuery, [idPlanta]);
@@ -149,6 +156,7 @@ router.delete('/desconectarModulo', authenticateToken, async (req, res) => {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error interno del servidor' });
   }
 });
+
 router.post('/subirDatosPlanta', authenticateToken, async (req, res) => {
   const { idPlanta, temperatura, humedad, fecha } = req.body;
   if (!Number.isInteger(idPlanta) || typeof temperatura !== 'number' || typeof humedad !== 'number') {
@@ -196,6 +204,7 @@ router.post('/subirDatosPlanta', authenticateToken, async (req, res) => {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error interno del servidor' });
   }
 });
+
 router.post('/registrarUltRiego', authenticateToken, async (req, res) => {
   const { idPlanta, fecha, duracionRiego } = req.body;
   if (!Number.isInteger(idPlanta) || typeof duracionRiego !== 'number') {
@@ -228,4 +237,5 @@ router.post('/registrarUltRiego', authenticateToken, async (req, res) => {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error interno del servidor' });
   }
 });
+
 export default router;

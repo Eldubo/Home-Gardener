@@ -10,7 +10,7 @@ export default class AmbienteService {
   async agregar({ nombre, temperatura, idUsuario }) {
     console.log('Service - agregar called with:', { nombre, temperatura, idUsuario });
     
-    if (!(await validator.isValidString(nombre)) || !(await validator.isPositivo(Number(temperatura)))) {
+    if (!validator.isValidString(nombre) || !validator.isPositivo(Number(temperatura))) {
       console.log('Validation failed');
       throw new AppError('Valores de campos inválidos', StatusCodes.BAD_REQUEST);
     }
@@ -29,7 +29,7 @@ export default class AmbienteService {
   }
 
   async editar(id, { nombre, idUsuario }) {
-    if (!(await validator.isValidString(nombre, 'Nombre')))
+    if (!validator.isValidString(nombre))
       throw new AppError('El nombre del ambiente es obligatorio y debe ser válido', StatusCodes.BAD_REQUEST);
 
     const ambiente = await repo.findById(id);
