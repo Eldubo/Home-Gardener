@@ -2,6 +2,7 @@
 import React, { useMemo, useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from "react-native";
 import { createAPI } from "../../services/api";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const GREEN = "#15A266";
 const LIGHT_BG = "#EAF8EE";
@@ -15,6 +16,7 @@ export default function RegisterScreen({ navigation, baseUrl = "http://localhost
   const [direccion, setDireccion] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const validatePassword = (pwd) =>
     pwd.length >= 8 && /[a-zA-Z]/.test(pwd) && /\d/.test(pwd);
@@ -65,6 +67,12 @@ export default function RegisterScreen({ navigation, baseUrl = "http://localhost
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        style={styles.backButton}
+      >
+        <Ionicons name="arrow-back" size={24} color="#000" />
+      </TouchableOpacity>
       <TextInput
         placeholder="Nombre (opcional)"
         value={nombre}
@@ -79,13 +87,25 @@ export default function RegisterScreen({ navigation, baseUrl = "http://localhost
         autoCapitalize="none"
         style={styles.input}
       />
-      <TextInput
-        placeholder="Contraseña"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-        style={styles.input}
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          placeholder="Contraseña"
+          secureTextEntry={!showPassword}
+          value={password}
+          onChangeText={setPassword}
+          style={styles.passwordInput}
+        />
+        <TouchableOpacity
+          onPress={() => setShowPassword(!showPassword)}
+          style={styles.eyeIcon}
+        >
+          <Ionicons
+            name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+            size={24}
+            color="#888"
+          />
+        </TouchableOpacity>
+      </View>
       <TextInput
         placeholder="Dirección"
         value={direccion}
@@ -146,5 +166,33 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '800',
     fontSize: 17,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#CFF1E2',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#B2DFDB',
+    marginBottom: 18,
+    height: 48,
+    paddingRight: 8,
+  },
+  passwordInput: {
+    flex: 1,
+    paddingHorizontal: 14,
+    color: '#1a1a1a',
+    fontSize: 16,
+  },
+  eyeIcon: {
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    padding: 10,
+    zIndex: 1,
   },
 });

@@ -59,6 +59,12 @@ export default function LoginScreen({ navigation, baseUrl = "http://localhost:30
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        style={styles.backButton}
+      >
+        <Ionicons name="arrow-back" size={24} color="#000" />
+      </TouchableOpacity>
       <TextInput
         placeholder="Email"
         value={email}
@@ -164,5 +170,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '800',
     fontSize: 17,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    padding: 10,
+    zIndex: 1,
   },
 });
