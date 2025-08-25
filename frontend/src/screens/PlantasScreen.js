@@ -84,15 +84,15 @@ export default function PlantasScreen({ navigation }) {
         contentContainerStyle={styles.lista}
         ListEmptyComponent={<Text>No tienes plantas registradas.</Text>}
       />
-      <TouchableOpacity
-        style={styles.botonAgregarPlanta}
-        onPress={() => Alert.alert('Agregar', 'Función de agregar planta')}
+        <TouchableOpacity
+          style={styles.botonAgregarPlanta}
+          onPress={() => navigation.navigate('AgregarPlanta')}
       >
         <Text style={styles.textoBoton}>Agregar planta</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.botonAgregarAmbiente}
-        onPress={() => Alert.alert('Agregar', 'Función de agregar ambiente')}
+        onPress={() => navigation.navigate('AgregarAmbiente')}
       >
         <Text style={styles.textoBoton}>Agregar ambiente</Text>
       </TouchableOpacity>
@@ -124,10 +124,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 2,
+    boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.1)',
     elevation: 2,
   },
   imagen: {
