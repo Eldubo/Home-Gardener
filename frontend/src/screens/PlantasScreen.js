@@ -3,7 +3,7 @@ import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert, Activ
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function PlantasScreen({ navigation }) {
+export default function PlantasScreen({ navigation, baseUrl = process.env.EXPO_PUBLIC_API_URL  }) {
   const [plantas, setPlantas] = useState([]);
   const [loading, setLoading] = useState(true);
 

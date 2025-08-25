@@ -22,7 +22,7 @@ const statusColor = {
   alert: "#ff6b6b",
 };
 
-export default function HomeScreen({ navigation }) {
+export default function HomeScreen({ navigation, baseUrl = process.env.EXPO_PUBLIC_API_URL  }) {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -115,7 +115,7 @@ export default function HomeScreen({ navigation }) {
       {/* Botón para ChatBot */}
       <TouchableOpacity 
         style={styles.boton} 
-        onPress={() => navigation.navigate('ChatBot')}
+        onPress={() => navigation.navigate('Chatbot')}
       >
         <Text style={styles.botonText}>Ir al ChatBot</Text>
       </TouchableOpacity>

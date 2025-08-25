@@ -13,3 +13,4 @@ export { default as ForgotPasswordScreen } from '../screens/auth/ForgotPasswordS
 export { default as EditarPerfilScreen } from '../screens/EditarPerfilScreen';
 export { default as InfoPlantaScreen } from '../screens/InfoPlanta';
 export { default as HealthCheck } from '../screens/HealthStatus';
+export { default as ChatbotScreen } from '../screens/ChatbotScreen';
