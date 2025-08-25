@@ -15,6 +15,7 @@ import {
 import { createAPI } from "../../services/api";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuth } from "../../contexts/AuthContext";
 
 const GREEN = "#15A266";
 const DARK_GREEN = "#0D5C3C";
@@ -22,6 +23,7 @@ const LIGHT_BG = "#EAF8EE";
 
 export default function RegisterScreen({ navigation, baseUrl = process.env.EXPO_PUBLIC_API_URL}) {
   const api = useMemo(() => createAPI(baseUrl), [baseUrl]);
+  const { register } = useAuth();
 
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
@@ -63,8 +65,32 @@ export default function RegisterScreen({ navigation, baseUrl = process.env.EXPO_
         password,
         direccion,
       });
-      Alert.alert("Registro exitoso", data?.message || "Ya puedes iniciar sesión");
-      navigation.navigate("Login");
+      
+      // Usar el contexto de autenticación para registrar al usuario
+      if (data.token && data.user) {
+        const success = await register(data.user, data.token);
+        
+        if (success) {
+          Alert.alert(
+            "¡Registro exitoso!", 
+            `Bienvenido/a ${data.user?.nombre || 'usuario'}! Ya puedes usar la aplicación.`,
+            [
+              {
+                text: "¡Perfecto!",
+                onPress: () => navigation.navigate("Home")
+              }
+            ]
+          );
+        } else {
+          // Fallback si falla el registro en el contexto
+          Alert.alert("Registro exitoso", "Tu cuenta ha sido creada. Por favor inicia sesión.");
+          navigation.navigate("Login");
+        }
+      } else {
+        // Fallback si no hay token o usuario (aunque debería haberlo)
+        Alert.alert("Registro exitoso", "Tu cuenta ha sido creada. Por favor inicia sesión.");
+        navigation.navigate("Login");
+      }
     } catch (e) {
       setError(
         e?.response?.data?.message ||
