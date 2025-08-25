@@ -3,7 +3,7 @@ import React, { useMemo, useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 import { createAPI } from "../../services/api";
 
-export default function RegisterScreen({ navigation, baseUrl = "http://localhost:3000" }) {
+export default function RegisterScreen({ navigation, baseUrl = process.env.EXPO_PUBLIC_API_URL}) {
   const api = useMemo(() => createAPI(baseUrl), [baseUrl]);
 
   const [nombre, setNombre] = useState("");

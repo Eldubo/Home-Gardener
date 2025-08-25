@@ -4,7 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createAPI } from "../services/api";
 import LogoutButton from "../components/LogoutButton";
 
-export default function PerfilScreen({ navigation, baseUrl = "http://localhost:3000" }) {
+export default function PerfilScreen({ navigation, baseUrl = process.env.EXPO_PUBLIC_API_URL }) {
   const api = useMemo(() => createAPI(baseUrl), [baseUrl]);
 
   const [user, setUser] = useState(null);
