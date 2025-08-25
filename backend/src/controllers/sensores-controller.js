@@ -1,5 +1,95 @@
 // Rutas para gestión de plantas y módulos
+import { Router } from 'express';
+import { StatusCodes } from 'http-status-codes';
+import authenticateToken from '../middlewares/auth.js';
+import SensoresService from '../services/sensores-service.js';
 
+const router = Router();
+const sensoresService = new SensoresService();
+
+// Obtener datos de sensores
+router.get('/datosSensores', authenticateToken, async (req, res) => {
+  try {
+    const idPlanta = Number(req.query.idPlanta);
+    const idUsuario = req.user.ID;
+    const result = await sensoresService.obtenerDatosSensores(idPlanta, idUsuario);
+    return res.status(result.status).json(result.data);
+  } catch (error) {
+    console.error('Error en /datosSensores:', error);
+    res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message });
+  }
+});
+
+// Obtener último riego
+router.get('/ultRiego', authenticateToken, async (req, res) => {
+  try {
+    const idPlanta = Number(req.query.idPlanta);
+    const idUsuario = req.user.ID;
+    const result = await sensoresService.obtenerUltimoRiego(idPlanta, idUsuario);
+    return res.status(result.status).json(result.data);
+  } catch (error) {
+    console.error('Error en /ultRiego:', error);
+    res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message });
+  }
+});
+
+// Conectar módulo
+router.put('/conectarModulo', authenticateToken, async (req, res) => {
+  try {
+    const { idPlanta, idModulo } = req.body;
+    const result = await sensoresService.conectarModulo(Number(idPlanta), Number(idModulo));
+    return res.status(result.status).json(result.data);
+  } catch (error) {
+    console.error('Error en /conectarModulo:', error);
+    res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message });
+  }
+});
+
+// Desconectar módulo
+router.delete('/desconectarModulo', authenticateToken, async (req, res) => {
+  try {
+    const { idPlanta } = req.body;
+    const idUsuario = req.user.ID;
+    const result = await sensoresService.desconectarModulo(Number(idPlanta), idUsuario);
+    return res.status(result.status).json(result.data);
+  } catch (error) {
+    console.error('Error en /desconectarModulo:', error);
+    res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message });
+  }
+});
+
+// Subir datos de planta
+router.post('/subirDatosPlanta', authenticateToken, async (req, res) => {
+  try {
+    const { idPlanta, temperatura, humedad, fecha } = req.body;
+    const idUsuario = req.user.ID;
+    const result = await sensoresService.subirDatosPlanta({ idPlanta, temperatura, humedad, fecha, idUsuario });
+    return res.status(result.status).json(result.data);
+  } catch (error) {
+    console.error('Error en /subirDatosPlanta:', error);
+    res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message });
+  }
+});
+
+// Registrar último riego
+router.post('/registrarUltRiego', authenticateToken, async (req, res) => {
+  try {
+    const { idPlanta, fecha, duracionRiego } = req.body;
+    const idUsuario = req.user.ID;
+    const result = await sensoresService.registrarUltimoRiego({ idPlanta, fecha, duracionRiego, idUsuario });
+    return res.status(result.status).json(result.data);
+  } catch (error) {
+    console.error('Error en /registrarUltRiego:', error);
+    res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message });
+  }
+});
+
+export default router;
+
+
+
+
+/*
 import { Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import DB_config from '../configs/db_configs.js';
@@ -223,3 +313,5 @@ router.post('/registrarUltRiego', authenticateToken, async (req, res) => {
 });
 
 export default router;
+
+*/
