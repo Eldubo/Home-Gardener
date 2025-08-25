@@ -16,6 +16,7 @@ import {
   ForgotPasswordScreen, 
   EditarPerfilScreen,
   InfoPlantaScreen,
+  ChatbotScreen,
 } from '../screens'
 
 import Layout from '../components/Layout';  
@@ -33,6 +34,7 @@ export default function AppNavigator() {
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       
       {/* Usamos el HOC withLayout para envolver estas pantallas */}
+      <Stack.Screen name="Chatbot" component={withLayout(ChatbotScreen)} />
       <Stack.Screen name="Home" component={withLayout(HomeScreen)} />
       <Stack.Screen name="Plantas" component={withLayout(PlantasScreen)} />
       <Stack.Screen name="AgregarPlanta" component={withLayout(AgregarPlanta)} />

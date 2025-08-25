@@ -156,6 +156,14 @@ export default function LoginScreen({ navigation, baseUrl = process.env.EXPO_PUB
               </TouchableOpacity>
             </View>
           </View>
+          
+          {/* Register Link */}
+          <TouchableOpacity
+            style={styles.registerButton}
+            onPress={() => navigation.navigate('Register')}
+          >
+            <Text style={styles.registerText}>No tienes una cuenta? Regístrate</Text>
+          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -262,5 +270,17 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '800',
     fontSize: 17,
+  },
+  registerButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: '#0D5C3C',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  registerText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 16,
   },
 });

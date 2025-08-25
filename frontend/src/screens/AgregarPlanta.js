@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Picker } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function AgregarPlanta({ navigation }) {
+export default function AgregarPlanta({ navigation, baseUrl = process.env.EXPO_PUBLIC_API_URL  }) {
     const [nombre, setNombre] = useState('');
     const [tipo, setTipo] = useState(''); // Nuevo estado para tipo
     const [idAmbiente, setIdAmbiente] = useState(''); // Nuevo estado para idAmbiente
@@ -21,7 +22,7 @@ export default function AgregarPlanta({ navigation }) {
                 }
 
                 // Obtener tipos de planta
-                const tiposResponse = await fetch('http://localhost:3000/api/plantas/tipos', {
+                const tiposResponse = await fetch(`${baseUrl}/api/plantas/tipos`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     },
@@ -32,7 +33,7 @@ export default function AgregarPlanta({ navigation }) {
                 }
 
                 // Obtener ambientes del usuario
-                const ambientesResponse = await fetch('http://localhost:3000/api/ambiente/listar', {
+                const ambientesResponse = await fetch(`${baseUrl}/api/ambiente/listar`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     },
@@ -64,7 +65,7 @@ export default function AgregarPlanta({ navigation }) {
                 return;
             }
 
-            const response = await fetch('http://localhost:3000/api/plantas/agregar', {
+            const response = await fetch(`${baseUrl}/api/plantas/agregar`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

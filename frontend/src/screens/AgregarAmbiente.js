@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function AgregarAmbiente({ navigation }) {
+export default function AgregarAmbiente({ navigation, baseUrl = process.env.EXPO_PUBLIC_API_URL  }) {
     const [nombre, setNombre] = useState('');
     const [temperatura, setTemperatura] = useState('');
 
@@ -22,7 +22,7 @@ export default function AgregarAmbiente({ navigation }) {
             console.log('Token:', token);
             console.log('Sending data:', { nombre, temperatura });
 
-            const response = await fetch('http://localhost:3000/api/ambiente/agregar', {
+            const response = await fetch(`${baseUrl}/api/ambiente/agregar`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
