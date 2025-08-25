@@ -18,7 +18,7 @@ export default function InfoPlanta({ route }) {
           setLoading(false);
           return;
         }
-        const response = await fetch(`http://localhost:3000/api/plantas/getInfoPlanta?idPlanta=${idPlanta}`, {
+        const response = await fetch(`${baseUrl}/api/plantas/getInfoPlanta?idPlanta=${idPlanta}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

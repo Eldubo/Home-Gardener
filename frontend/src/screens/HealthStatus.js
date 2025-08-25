@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createAPI } from "../services/api";
 import { getHealthStatus } from "../services/healthService";
 
-export default function HealthCheck({ baseUrl = "http://localhost:3000" }) {
+export default function HealthCheck({ baseUrl = process.env.EXPO_PUBLIC_API_URL }) {
   const [health, setHealth] = useState(null);
   const [error, setError] = useState("");
   const [lastUpdated, setLastUpdated] = useState(null);

@@ -17,7 +17,7 @@ export default function PlantasScreen({ navigation }) {
           setLoading(false);
           return;
         }
-        const response = await fetch('http://localhost:3000/api/plantas/misPlantas', {
+        const response = await fetch(`${baseUrl}/api/plantas/misPlantas`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

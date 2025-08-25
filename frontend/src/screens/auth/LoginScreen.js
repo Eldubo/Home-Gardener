@@ -4,7 +4,7 @@ import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAPI } from '../../services/api';
 
-export default function LoginScreen({ navigation, baseUrl = "http://localhost:3000" }) {
+export default function LoginScreen({ navigation, baseUrl = process.env.EXPO_PUBLIC_API_URL }) {
   // Instancia de API (se recrea si cambia baseUrl)
   const api = useMemo(() => createAPI(baseUrl), [baseUrl]);
 
