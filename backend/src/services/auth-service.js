@@ -16,10 +16,10 @@ const userRepo = new UserRepository();
 
 export default class AuthService {
   async register({ nombre, email, password, direccion, imagen }) {
-    const emailValid = await validator.isValidEmail(email);
-    const passwordValid = await validator.isValidPassword(password);
-    const nombreValid = await validator.isValidString(nombre);
-    const direccionValid = await validator.isValidString(direccion);
+    const emailValid = validator.isValidEmail(email);
+    const passwordValid = validator.isValidPassword(password);
+    const nombreValid = validator.isValidString(nombre);
+    const direccionValid = validator.isValidString(direccion);
     
     if (!emailValid || !passwordValid || !nombreValid || !direccionValid)
       throw new AppError('Formato de campos inválido', StatusCodes.BAD_REQUEST);

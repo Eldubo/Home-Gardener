@@ -12,7 +12,11 @@ router.post('/register', (req, res) => {
 
   upload(req, res, async (err) => {
     if (err) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: err.message, token: '' });
+      return res.status(StatusCodes.BAD_REQUEST).json({ 
+        success: false, 
+        message: err.message, 
+        token: '' 
+      });
     }
 
     try {
@@ -25,6 +29,7 @@ router.post('/register', (req, res) => {
       const { user, token } = await authService.register(userData);
 
       res.status(StatusCodes.CREATED).json({
+        success: true,
         message: 'Usuario registrado exitosamente',
         user,
         token
@@ -44,7 +49,12 @@ router.post('/register', (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { user, token } = await authService.login(req.body);
-    res.status(StatusCodes.OK).json({ message: 'Login exitoso', user, token });
+    res.status(StatusCodes.OK).json({ 
+      success: true,
+      message: 'Login exitoso', 
+      user, 
+      token 
+    });
   } catch (error) {
     const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR; 
 
@@ -60,7 +70,11 @@ router.post('/login', async (req, res) => {
 router.get('/profile', authenticateToken, async (req, res) => {
   try {
     const user = await authService.getProfile(req.user.ID);
-    res.status(StatusCodes.OK).json({ message: 'Perfil obtenido exitosamente', user });
+    res.status(StatusCodes.OK).json({ 
+      success: true,
+      message: 'Perfil obtenido exitosamente', 
+      user 
+    });
   } catch (error) {
     const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR; 
 
@@ -75,7 +89,11 @@ router.get('/profile', authenticateToken, async (req, res) => {
 router.put('/profile', authenticateToken, async (req, res) => {
   try {
     const user = await authService.updateProfile(req.user.ID, req.body);
-    res.status(StatusCodes.OK).json({ message: 'Usuario actualizado exitosamente', user });
+    res.status(StatusCodes.OK).json({ 
+      success: true,
+      message: 'Usuario actualizado exitosamente', 
+      user 
+    });
   } catch (error) {
     const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR; 
 

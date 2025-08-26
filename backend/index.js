@@ -25,11 +25,15 @@ console.log('🌱 Iniciando servidor Home Gardener...');
 
 const app = express();
 
-// Configuración de CORS
+// Configuración de CORS más segura
 const corsOptions = {
-origin: '*',
+  origin: process.env.NODE_ENV === 'production' 
+    ? [process.env.FRONTEND_URL || 'http://localhost:3000'] // Solo permitir origen específico en producción
+    : '*', // Permitir todos en desarrollo
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 app.use(cors(corsOptions));
@@ -80,6 +84,7 @@ app.get('/', (req, res) => {
 // Middleware para manejar rutas no encontradas
 app.use('*', (req, res) => {
   res.status(StatusCodes.NOT_FOUND).json({
+    success: false,
     message: 'Ruta no encontrada',
     path: req.originalUrl,
     method: req.method
@@ -93,6 +98,7 @@ app.use((error, req, res, next) => {
   // Error de validación de JWT
   if (error.name === 'JsonWebTokenError') {
     return res.status(StatusCodes.UNAUTHORIZED).json({
+      success: false,
       message: 'Token inválido',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
@@ -101,6 +107,7 @@ app.use((error, req, res, next) => {
   // Error de expiración de JWT
   if (error.name === 'TokenExpiredError') {
     return res.status(StatusCodes.UNAUTHORIZED).json({
+      success: false,
       message: 'Token expirado',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
@@ -109,6 +116,7 @@ app.use((error, req, res, next) => {
   // Error de base de datos
   if (error.code === '23505') { // Unique violation
     return res.status(StatusCodes.CONFLICT).json({
+      success: false,
       message: 'El recurso ya existe',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
@@ -116,6 +124,7 @@ app.use((error, req, res, next) => {
 
   if (error.code === '23503') { // Foreign key violation
     return res.status(StatusCodes.BAD_REQUEST).json({
+      success: false,
       message: 'Referencia inválida',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
@@ -123,6 +132,7 @@ app.use((error, req, res, next) => {
 
   // Error genérico
   res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+    success: false,
     message: 'Error interno del servidor',
     error: process.env.NODE_ENV === 'development' ? error.message : undefined
   });
