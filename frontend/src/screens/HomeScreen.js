@@ -8,7 +8,7 @@ import {
   Image, 
   TouchableOpacity 
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../contexts/AuthContext';
 
 const PLANTS = [
   { id: 1, name: "Albahaca", note: "Fue regada a las 5:02", status: "ok" },
@@ -23,39 +23,11 @@ const statusColor = {
 };
 
 export default function HomeScreen({ navigation, baseUrl = process.env.EXPO_PUBLIC_API_URL  }) {
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      const token = await AsyncStorage.getItem('token');
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const res = await fetch(`${baseUrl}/api/auth/profile`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!res.ok) throw new Error('Token inválido o expirado');
-
-        const data = await res.json();
-        setUserData(data.user || data);
-      } catch (e) {
-        console.log('Error al cargar perfil:', e);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, []);
+  const { user, loading } = useAuth();
 
   if (loading) return <Text style={styles.loading}>Cargando...</Text>;
 
-  if (!userData) return <Text style={styles.error}>No hay datos de usuario</Text>;
+  if (!user) return <Text style={styles.error}>No hay datos de usuario</Text>;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 24 }}>
@@ -86,7 +58,7 @@ export default function HomeScreen({ navigation, baseUrl = process.env.EXPO_PUBL
       <View style={styles.greetingBox}>
         <Text style={styles.greetingText}>Bienvenido/a a Home</Text>
         <Text style={styles.greetingText}>Gardener</Text>
-        <Text style={styles.greetingName}>{userData.nombre}</Text>
+        <Text style={styles.greetingName}>{user.nombre}</Text>
       </View>
 
       {/* Lista de plantas */}

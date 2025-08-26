@@ -21,6 +21,7 @@ import {
 
 import Layout from '../components/Layout';  
 import withLayout from '../utils/withLayout';  // Importa el HOC
+import ProtectedRoute from '../components/ProtectedRoute';
 
 const Stack = createNativeStackNavigator();
 
@@ -33,17 +34,87 @@ export default function AppNavigator() {
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       
-      {/* Usamos el HOC withLayout para envolver estas pantallas */}
-      <Stack.Screen name="Chatbot" component={withLayout(ChatbotScreen)} />
-      <Stack.Screen name="Home" component={withLayout(HomeScreen)} />
-      <Stack.Screen name="Plantas" component={withLayout(PlantasScreen)} />
-      <Stack.Screen name="AgregarPlanta" component={withLayout(AgregarPlanta)} />
-      <Stack.Screen name="AgregarAmbiente" component={withLayout(AgregarAmbiente)} />
-      <Stack.Screen name="QR" component={withLayout(QRScreen)} />
-      <Stack.Screen name="Info" component={withLayout(InfoScreen)} />
-      <Stack.Screen name="Perfil" component={withLayout(PerfilScreen)} />
-      <Stack.Screen name="EditarPerfil" component={withLayout(EditarPerfilScreen)} />
-      <Stack.Screen name="InfoPlanta" component={withLayout(InfoPlantaScreen)} />
+      {/* Rutas protegidas que requieren autenticación */}
+      <Stack.Screen 
+        name="Chatbot" 
+        component={withLayout((props) => (
+          <ProtectedRoute>
+            <ChatbotScreen {...props} />
+          </ProtectedRoute>
+        ))} 
+      />
+      <Stack.Screen 
+        name="Home" 
+        component={withLayout((props) => (
+          <ProtectedRoute>
+            <HomeScreen {...props} />
+          </ProtectedRoute>
+        ))} 
+      />
+      <Stack.Screen 
+        name="Plantas" 
+        component={withLayout((props) => (
+          <ProtectedRoute>
+            <PlantasScreen {...props} />
+          </ProtectedRoute>
+        ))} 
+      />
+      <Stack.Screen 
+        name="AgregarPlanta" 
+        component={withLayout((props) => (
+          <ProtectedRoute>
+            <AgregarPlanta {...props} />
+          </ProtectedRoute>
+        ))} 
+      />
+      <Stack.Screen 
+        name="AgregarAmbiente" 
+        component={withLayout((props) => (
+          <ProtectedRoute>
+            <AgregarAmbiente {...props} />
+          </ProtectedRoute>
+        ))} 
+      />
+      <Stack.Screen 
+        name="QR" 
+        component={withLayout((props) => (
+          <ProtectedRoute>
+            <QRScreen {...props} />
+          </ProtectedRoute>
+        ))} 
+      />
+      <Stack.Screen 
+        name="Info" 
+        component={withLayout((props) => (
+          <ProtectedRoute>
+            <InfoScreen {...props} />
+          </ProtectedRoute>
+        ))} 
+      />
+      <Stack.Screen 
+        name="Perfil" 
+        component={withLayout((props) => (
+          <ProtectedRoute>
+            <PerfilScreen {...props} />
+          </ProtectedRoute>
+        ))} 
+      />
+      <Stack.Screen 
+        name="EditarPerfil" 
+        component={withLayout((props) => (
+          <ProtectedRoute>
+            <EditarPerfilScreen {...props} />
+          </ProtectedRoute>
+        ))} 
+      />
+      <Stack.Screen 
+        name="InfoPlanta" 
+        component={withLayout((props) => (
+          <ProtectedRoute>
+            <InfoPlantaScreen {...props} />
+          </ProtectedRoute>
+        ))} 
+      />
     </Stack.Navigator>
   );
 }

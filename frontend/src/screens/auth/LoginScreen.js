@@ -13,13 +13,14 @@ import {
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAPI } from '../../services/api';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function LoginScreen({ navigation, baseUrl = process.env.EXPO_PUBLIC_API_URL }) {
 
   const api = useMemo(() => createAPI(baseUrl), [baseUrl]);
+  const { login } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -54,10 +55,16 @@ export default function LoginScreen({ navigation, baseUrl = process.env.EXPO_PUB
     try {
 
       const { data } = await api.post('/api/auth/login', { email, password });
-      await AsyncStorage.setItem('token', data.token);
-
-      Alert.alert('Bienvenido', `Hola, ${data.user?.nombre || 'usuario'}!`);
-      navigation.navigate('Home');
+      
+      // Usar el contexto de autenticación para hacer login
+      const success = await login(data.user, data.token);
+      
+      if (success) {
+        Alert.alert('Bienvenido', `Hola, ${data.user?.nombre || 'usuario'}!`);
+        navigation.navigate('Home');
+      } else {
+        setError('Error al iniciar sesión. Por favor intenta nuevamente.');
+      }
 
     } catch (e) {
       let errorMessage = 'Error en el login';
