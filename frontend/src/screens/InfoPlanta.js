@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { getApiBaseUrl } from '../services/api';
 
 export default function InfoPlanta({ route }) {
   const { idPlanta } = route.params;
@@ -18,6 +18,7 @@ export default function InfoPlanta({ route }) {
           setLoading(false);
           return;
         }
+        const baseUrl = getApiBaseUrl();
         const response = await fetch(`${baseUrl}/api/plantas/getInfoPlanta?idPlanta=${idPlanta}`, {
           method: 'GET',
           headers: {
