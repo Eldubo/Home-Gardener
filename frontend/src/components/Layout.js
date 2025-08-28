@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import Footer from './Footer';
 import Navbar from './Navbar';
+import Notifications from './Notifications';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default function Layout({ children, navigation, showBackButton = true }) {
@@ -13,6 +14,7 @@ export default function Layout({ children, navigation, showBackButton = true }) 
                 </TouchableOpacity>
             )}
             <Navbar style={styles.navbar} />
+            <Notifications />
             <View style={styles.content}>{children}</View>
             <Footer navigation={navigation} />
         </View>
