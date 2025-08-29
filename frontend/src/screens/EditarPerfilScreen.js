@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, TextInput, Button, Text, StyleSheet, Alert, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function EditarPerfilScreen({ navigation }) {
   const [userData, setUserData] = useState(null);
@@ -10,6 +12,7 @@ export default function EditarPerfilScreen({ navigation }) {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [foto, setFoto] = useState(null);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -45,6 +48,18 @@ export default function EditarPerfilScreen({ navigation }) {
     loadUser();
   }, []);
 
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+    if (!result.canceled) {
+      setFoto(result.assets[0].uri);
+    }
+  };
+
   const handleUpdate = async () => {
     setError(null);
 
@@ -55,27 +70,36 @@ export default function EditarPerfilScreen({ navigation }) {
 
     try {
       setUpdating(true);
-      const userId = await AsyncStorage.getItem('user_id');
-      if (!userId) {
-        setError('No se encontró el ID de usuario.');
-        return;
+      const formData = new FormData();
+      formData.append('nombre', nombre.trim());
+      formData.append('email', email.trim().toLowerCase());
+      formData.append('direccion', direccion.trim());
+      if (foto) {
+        formData.append('Foto', {
+          uri: foto,
+          name: 'foto.jpg',
+          type: 'image/jpeg',
+        });
       }
 
-      const { error: updateError } = await supabase
-        .from('Usuario')
-        .update({
-          Nombre: nombre.trim(),
-          Email: email.trim().toLowerCase(),
-          Direccion: direccion.trim(),
-        })
-        .eq('ID', userId);
+      const token = await AsyncStorage.getItem('token');
+      const response = await fetch(`${baseUrl}/api/auth/updateProfile`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
 
-      if (updateError) {
-        console.error('Error actualizando datos:', updateError);
-        setError('No se pudo actualizar la información');
-      } else {
+      const data = await response.json();
+
+      if (response.ok) {
         Alert.alert('Éxito', 'Tus datos fueron actualizados correctamente');
         navigation.goBack();
+      } else {
+        console.error('Error actualizando datos:', data);
+        setError('No se pudo actualizar la información');
       }
     } catch (err) {
       console.error('Error general en la actualización:', err);
@@ -97,6 +121,17 @@ export default function EditarPerfilScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Editar Perfil</Text>
+
+      <TouchableOpacity onPress={pickImage} style={{ alignItems: 'center', marginBottom: 10 }}>
+        {foto ? (
+          <Image source={{ uri: foto }} style={{ width: 80, height: 80, borderRadius: 40 }} />
+        ) : (
+          <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: '#ccc', justifyContent: 'center', alignItems: 'center' }}>
+            <Ionicons name="camera" size={32} color="#555" />
+          </View>
+        )}
+        <Text style={{ color: '#555', marginTop: 5 }}>Cambiar foto</Text>
+      </TouchableOpacity>
 
       <TextInput
         placeholder="Nombre"
