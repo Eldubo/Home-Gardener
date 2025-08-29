@@ -4,8 +4,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function EditarPerfilScreen({ navigation }) {
-  const [userData, setUserData] = useState(null);
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [direccion, setDireccion] = useState('');
@@ -16,37 +14,31 @@ export default function EditarPerfilScreen({ navigation }) {
 
   useEffect(() => {
     const loadUser = async () => {
+      setError(null);
       try {
-        const userId = await AsyncStorage.getItem('user_id');
-        if (userId) {
-          const { data, error } = await supabase
-            .from('Usuario')
-            .select('*')
-            .eq('ID', userId)
-            .single();
-
-          if (error) {
-            console.error('Error al cargar usuario:', error);
-            setError('No se pudo cargar la información del usuario');
-          } else {
-            setUserData(data);
-            setNombre(data.nombre || '');
-            setEmail(data.email || '');
-            setDireccion(data.direccion || '');
-          }
-        } else {
-          setError('ID de usuario no encontrado.');
+        // Si ya tenemos el usuario en contexto, lo usamos; si no, pedimos al backend
+        if (user) {
+          setNombre(user.Nombre || '');
+          setEmail(user.Email || '');
+          setDireccion(user.Direccion || '');
+          setLoading(false);
+          return;
         }
-      } catch (err) {
-        console.error('Error accediendo a AsyncStorage:', err);
-        setError('Error interno al acceder al almacenamiento');
+
+        const { data } = await api.get('/api/auth/profile');
+        const u = data?.user;
+        setNombre(u?.Nombre || '');
+        setEmail(u?.Email || '');
+        setDireccion(u?.Direccion || '');
+      } catch (e) {
+        setError(e?.response?.data?.message || 'No se pudo cargar la información del usuario');
       } finally {
         setLoading(false);
       }
     };
 
     loadUser();
-  }, []);
+  }, [api, user]);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -101,9 +93,9 @@ export default function EditarPerfilScreen({ navigation }) {
         console.error('Error actualizando datos:', data);
         setError('No se pudo actualizar la información');
       }
-    } catch (err) {
-      console.error('Error general en la actualización:', err);
-      setError('Ocurrió un error inesperado');
+    } catch (e) {
+      const msg = e?.response?.data?.message || e.message || 'Ocurrió un error inesperado';
+      setError(msg);
     } finally {
       setUpdating(false);
     }

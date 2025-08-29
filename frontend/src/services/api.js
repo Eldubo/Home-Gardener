@@ -1,16 +1,25 @@
 import axios from "axios";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const createAPI = (baseURL, { timeout = 8000 } = {}) => {
   const instance = axios.create({
-    baseURL,
+    baseURL: baseURL || getApiBaseUrl(),
     timeout,
     headers: { "Content-Type": "application/json" },
   });
 
   // Interceptor para agregar el token de autorización
   instance.interceptors.request.use(
-    (config) => {
-      // Aquí podrías agregar el token desde AsyncStorage si es necesario
+    async (config) => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if (token) {
+          config.headers = config.headers || {};
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+      } catch (e) {
+        // noop
+      }
       return config;
     },
     (error) => {

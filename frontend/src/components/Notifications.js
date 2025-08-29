@@ -126,22 +126,23 @@ export default function Notifications() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} pointerEvents="box-none">
       <TouchableOpacity 
         style={styles.notificationButton} 
         onPress={toggleExpanded}
         activeOpacity={0.7}
+        pointerEvents="auto"
       >
         <Ionicons name="notifications" size={24} color="#fff" />
         {getUnreadCount() > 0 && (
-          <View style={styles.badge}>
+          <View style={styles.badge} pointerEvents="none">
             <Text style={styles.badgeText}>{getUnreadCount()}</Text>
           </View>
         )}
       </TouchableOpacity>
 
       {isExpanded && (
-        <View style={styles.notificationsPanel}>
+        <View style={styles.notificationsPanel} pointerEvents="auto">
           <View style={styles.panelHeader}>
             <Text style={styles.panelTitle}>Notificaciones</Text>
             <TouchableOpacity onPress={toggleExpanded}>
