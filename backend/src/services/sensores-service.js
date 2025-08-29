@@ -46,6 +46,15 @@ export default class  sensoresService {
     
     const moduloExiste = await repo.verificarModulo(idModulo);
     if (!moduloExiste) throw new AppError('No se encuentra el módulo', StatusCodes.NOT_FOUND);
+    //Verifica que el módulo no tenga otra planta conectada
+    const moduloDisponible = await repo.verificarModuloLibre(idModulo);
+    if(validator.isPositivo(moduloDisponible)){
+      throw new AppError('Este módulo ya tiene una planta conectada', StatusCodes.BAD_REQUEST);
+    }
+
+  //Verifica que la planta no tenga un módulo conctado ya 
+    const modulosPlanta = await repo.obtenerModulosDePlanta(idPlanta);
+    if (modulosPlanta > 0) throw new AppError('La planta ya tiene un módulo conectado', StatusCodes.BAD_REQUEST);
 
     const modulo = await repo.conectarModulo(idModulo, idPlanta);
     return { status: StatusCodes.OK, data: { message: 'Módulo conectado exitosamente', id: modulo.ID } };

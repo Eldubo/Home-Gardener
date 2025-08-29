@@ -66,7 +66,7 @@ export default class sensoresRepository {
     const result = await pool.query(query, [idPlanta]);
     return result.rows.length > 0 ? result.rows[0].HumedadDsp : 0;
   }
-//No se va a enviar la humedad y la temperatura en la misma vez --> ver si se puede cambiar sino
+//Debería haber una fc que permita enviar la temp y humedad al mismo tiempo que la duración del riego 
   async insertarDatosRegistrados(idPlanta, temperatura, humedad, fecha, humedadAntes) {
     const fechaInsertar = fecha ? new Date(fecha) : new Date();
     const query = `
@@ -86,6 +86,13 @@ export default class sensoresRepository {
       RETURNING *
     `;
     const result = await pool.query(query, [idPlanta, fechaInsertar, duracionRiego, 0]);
+    return result.rows[0];
+  }
+
+  async verificarModuloLibre(idModulo){
+    const query = `
+      SELECT "IdPlanta" FROM "Modulo" WHERE "ID" = $1 `;
+    const result = await pool.query(query, [idModulo]);
     return result.rows[0];
   }
 };
