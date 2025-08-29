@@ -24,6 +24,17 @@ export default class plantaRepository {
     return result.rows[0];
   }
 
+  async validarPropietario(idPlanta, idUsuario) {
+    const query = `
+      SELECT p."ID"
+      FROM "Planta" p
+      JOIN "Ambiente" a ON p."IdAmbiente" = a."ID"
+      WHERE p."ID" = $1 AND a."IdUsuario" = $2
+    `;
+    const result = await pool.query(query, [idPlanta, idUsuario]);
+    return result.rows.length > 0;
+  }
+  
   async verificarExistencia(idPlanta, idUsuario) {
     const query = `
       SELECT "P"."ID"

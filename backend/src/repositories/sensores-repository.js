@@ -5,27 +5,8 @@ import DB_config from '../configs/db_configs.js';
 const pool = new Pool(DB_config);
 
 export default class sensoresRepository {
-
-};
-
-/*
-import { Pool } from 'pg';
-import DB_config from '../configs/db_configs.js';
-
-const pool = new Pool(DB_config);
-
-export default class RegistroRepository {
-  async validarPropietario(idPlanta, idUsuario) {
-    const query = `
-      SELECT p."ID"
-      FROM "Planta" p
-      JOIN "Ambiente" a ON p."IdAmbiente" = a."ID"
-      WHERE p."ID" = $1 AND a."IdUsuario" = $2
-    `;
-    const result = await pool.query(query, [idPlanta, idUsuario]);
-    return result.rows.length > 0;
-  }
-
+  
+//Puede ser q el último registro no tenga temp (solo humedad)
   async obtenerUltimoRegistroSensor(idPlanta) {
     const query = `
       SELECT "Temperatura", "HumedadDsp", "Fecha"
@@ -37,7 +18,7 @@ export default class RegistroRepository {
     const result = await pool.query(query, [idPlanta]);
     return result.rows[0] || null;
   }
-
+ 
   async obtenerUltimoRiego(idPlanta) {
     const query = `
       SELECT MAX("Fecha") AS "UltimaFechaRiego" 
@@ -47,13 +28,14 @@ export default class RegistroRepository {
     const result = await pool.query(query, [idPlanta]);
     return result.rows[0]?.UltimaFechaRiego ? result.rows[0] : null;
   }
+  
 
   async verificarModulo(idModulo) {
     const query = 'SELECT "ID" FROM "Modulo" WHERE "ID" = $1';
     const result = await pool.query(query, [idModulo]);
     return result.rows[0] || null;
   }
-
+  
   async conectarModulo(idModulo, idPlanta) {
     const query = 'UPDATE "Modulo" SET "IdPlanta" = $2 WHERE "ID" = $1 RETURNING "ID"';
     const result = await pool.query(query, [idModulo, idPlanta]);
@@ -65,6 +47,7 @@ export default class RegistroRepository {
     const result = await pool.query(query, [idPlanta]);
     return result.rows;
   }
+
 
   async desconectarModulo(idPlanta) {
     const query = 'UPDATE "Modulo" SET "IdPlanta" = NULL WHERE "IdPlanta" = $1 RETURNING "ID"';
@@ -83,8 +66,8 @@ export default class RegistroRepository {
     const result = await pool.query(query, [idPlanta]);
     return result.rows.length > 0 ? result.rows[0].HumedadDsp : 0;
   }
-
-  async insertarDatosPlanta(idPlanta, temperatura, humedad, fecha, humedadAntes) {
+//No se va a enviar la humedad y la temperatura en la misma vez --> ver si se puede cambiar sino
+  async insertarDatosRegistrados(idPlanta, temperatura, humedad, fecha, humedadAntes) {
     const fechaInsertar = fecha ? new Date(fecha) : new Date();
     const query = `
       INSERT INTO "Registro" ("IdPlanta", "Temperatura", "HumedadDsp", "Fecha", "HumedadAntes")
@@ -105,6 +88,4 @@ export default class RegistroRepository {
     const result = await pool.query(query, [idPlanta, fechaInsertar, duracionRiego, 0]);
     return result.rows[0];
   }
-}
-
-*/
+};

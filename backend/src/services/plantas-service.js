@@ -68,6 +68,12 @@ export default class  plantaService {
     return { error: false, status: StatusCodes.OK, data: plantas };
   }
 
+  async validarPropietario({idPlanta, idUsuario}){
+    const esPropietario = await plantaRepo.validarPropietario(idPlanta, idUsuario);
+    return esPropietario;
+  }
+
+
   async modificarNombre ({ idPlanta, nuevoNombre, idUsuario }){
     if (!validator.isEnteroPositivo(idPlanta) || !nuevoNombre || typeof nuevoNombre !== 'string') {
       return { error: true, status: StatusCodes.BAD_REQUEST, message: 'Datos inválidos' };

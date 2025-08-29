@@ -1,30 +1,22 @@
 import sensoresRepository from '../repositories/sensores-repository.js';
+import plantaService from './plantas-service.js';
+
 import { validaciones } from '../utils/validaciones.js';
 import { StatusCodes } from 'http-status-codes';
+import AppError from '../utils/AppError.js';
 
-const sensoresRepo = new sensoresRepository();
+
+const repo = new sensoresRepository();
+const repoPlantas = new plantaService();
 const validator = new validaciones(); 
 
 export default class  sensoresService {
-
-};
-
-/*
-import { StatusCodes } from 'http-status-codes';
-import RegistroRepository from '../repositories/registro-repository.js';
-import AppError from '../utils/AppError.js';
-import { validaciones } from '../utils/validaciones.js';
-
-const repo = new RegistroRepository();
-const validator = new validaciones();
-
-export default class RegistroService {
   async obtenerDatosSensores(idPlanta, idUsuario) {
     if (!(await validator.isPositivo(idPlanta))) {
       throw new AppError('idPlanta inválido', StatusCodes.BAD_REQUEST);
     }
 
-    const esPropietario = await repo.validarPropietario(idPlanta, idUsuario);
+    const esPropietario = await repoPlantas.validarPropietario(idPlanta, idUsuario);
     if (!esPropietario) throw new AppError('No tienes permiso', StatusCodes.FORBIDDEN);
 
     const datos = await repo.obtenerUltimoRegistroSensor(idPlanta);
@@ -38,7 +30,7 @@ export default class RegistroService {
       throw new AppError('idPlanta inválido', StatusCodes.BAD_REQUEST);
     }
 
-    const esPropietario = await repo.validarPropietario(idPlanta, idUsuario);
+    const esPropietario = await repoPlantas.validarPropietario(idPlanta, idUsuario);
     if (!esPropietario) throw new AppError('No tienes permiso', StatusCodes.FORBIDDEN);
 
     const riego = await repo.obtenerUltimoRiego(idPlanta);
@@ -46,12 +38,12 @@ export default class RegistroService {
 
     return { status: StatusCodes.OK, data: riego };
   }
-
+  
   async conectarModulo(idPlanta, idModulo) {
     if (!(await validator.isPositivo(idPlanta)) || !(await validator.isPositivo(idModulo))) {
       throw new AppError('Parámetros inválidos', StatusCodes.BAD_REQUEST);
     }
-
+    
     const moduloExiste = await repo.verificarModulo(idModulo);
     if (!moduloExiste) throw new AppError('No se encuentra el módulo', StatusCodes.NOT_FOUND);
 
@@ -64,7 +56,7 @@ export default class RegistroService {
       throw new AppError('idPlanta inválido', StatusCodes.BAD_REQUEST);
     }
 
-    const esPropietario = await repo.validarPropietario(idPlanta, idUsuario);
+    const esPropietario = await repoPlantas.validarPropietario(idPlanta, idUsuario);
     if (!esPropietario) throw new AppError('No tienes permiso', StatusCodes.FORBIDDEN);
 
     const modulos = await repo.obtenerModulosDePlanta(idPlanta);
@@ -79,13 +71,13 @@ export default class RegistroService {
       throw new AppError('Parámetros inválidos', StatusCodes.BAD_REQUEST);
     }
 
-    const esPropietario = await repo.validarPropietario(idPlanta, idUsuario);
+    const esPropietario = await repoPlantas.validarPropietario(idPlanta, idUsuario);
     if (!esPropietario) throw new AppError('No tienes permiso', StatusCodes.FORBIDDEN);
 
     const humedadInt = Math.round(humedad);
     const humedadAntes = await repo.obtenerUltimaHumedad(idPlanta);
 
-    const registro = await repo.insertarDatosPlanta(idPlanta, temperatura, humedadInt, fecha, humedadAntes);
+    const registro = await repo.insertarDatosRegistrados(idPlanta, temperatura, humedadInt, fecha, humedadAntes);
     return { status: StatusCodes.CREATED, data: { message: 'Datos subidos correctamente', registro } };
   }
 
@@ -100,6 +92,4 @@ export default class RegistroService {
     const registro = await repo.insertarUltimoRiego(idPlanta, fecha, duracionRiego);
     return { status: StatusCodes.CREATED, data: { message: 'Riego registrado correctamente', registro } };
   }
-}
-
-*/
+};
