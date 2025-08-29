@@ -11,11 +11,13 @@ import {
   ScrollView,
   Platform,
   Dimensions,
+  Image,
 } from "react-native";
 import { createAPI } from "../../services/api";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../contexts/AuthContext";
+import * as ImagePicker from 'expo-image-picker';
 
 const GREEN = "#15A266";
 const DARK_GREEN = "#0D5C3C";
@@ -32,6 +34,7 @@ export default function RegisterScreen({ navigation, baseUrl = process.env.EXPO_
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [foto, setFoto] = useState(null);
 
   const validatePassword = (pwd) =>
     pwd.length >= 8 && /[a-zA-Z]/.test(pwd) && /\d/.test(pwd);
@@ -59,47 +62,56 @@ export default function RegisterScreen({ navigation, baseUrl = process.env.EXPO_
     }
 
     try {
-      const { data } = await api.post("/api/auth/register", {
-        nombre,
-        email,
-        password,
-        direccion,
+      const formData = new FormData();
+      formData.append('nombre', nombre);
+      formData.append('email', email);
+      formData.append('password', password);
+      formData.append('direccion', direccion);
+      if (foto) {
+        formData.append('Foto', {
+          uri: foto,
+          name: 'foto.jpg',
+          type: 'image/jpeg',
+        });
+      }
+
+      const response = await fetch(`${baseUrl}/api/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
       });
-      
-      // Usar el contexto de autenticación para registrar al usuario
-      if (data.token && data.user) {
+
+      const data = await response.json();
+      if (response.ok && data.token && data.user) {
         const success = await register(data.user, data.token);
-        
         if (success) {
           Alert.alert(
-            "¡Registro exitoso!", 
-            `Bienvenido/a ${data.user?.nombre || 'usuario'}! Ya puedes usar la aplicación.`,
-            [
-              {
-                text: "¡Perfecto!",
-                onPress: () => navigation.navigate("Home")
-              }
-            ]
+            "¡Registro exitoso!",
+            `Bienvenido/a ${data.user?.Nombre || 'usuario'}! Ya puedes usar la aplicación.`,
+            [{ text: "¡Perfecto!", onPress: () => navigation.navigate("Home") }]
           );
-        } else {
-          // Fallback si falla el registro en el contexto
-          Alert.alert("Registro exitoso", "Tu cuenta ha sido creada. Por favor inicia sesión.");
-          navigation.navigate("Login");
         }
       } else {
-        // Fallback si no hay token o usuario (aunque debería haberlo)
-        Alert.alert("Registro exitoso", "Tu cuenta ha sido creada. Por favor inicia sesión.");
-        navigation.navigate("Login");
+        setError(data.message || "Error en el registro");
       }
     } catch (e) {
-      setError(
-        e?.response?.data?.message ||
-          e?.response?.data?.error ||
-          e?.message ||
-          "Error en el registro"
-      );
+      setError(e.message || "Error en el registro");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+    if (!result.canceled) {
+      setFoto(result.assets[0].uri);
     }
   };
 
@@ -129,6 +141,16 @@ export default function RegisterScreen({ navigation, baseUrl = process.env.EXPO_
 
             {/* FORM */}
             <View style={styles.form}>
+              <TouchableOpacity onPress={pickImage} style={{ alignItems: 'center', marginBottom: 10 }}>
+                {foto ? (
+                  <Image source={{ uri: foto }} style={{ width: 80, height: 80, borderRadius: 40 }} />
+                ) : (
+                  <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: '#ccc', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="camera" size={32} color="#555" />
+                  </View>
+                )}
+                <Text style={{ color: '#555', marginTop: 5 }}>Subir foto</Text>
+              </TouchableOpacity>
               <TextInput
                 placeholder="Nombre (opcional)"
                 value={nombre}

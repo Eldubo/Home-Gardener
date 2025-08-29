@@ -24,6 +24,7 @@ export default function PerfilScreen({ navigation, baseUrl = process.env.EXPO_PU
         });
 
         setUser(data.user); // acá viene con Nombre, Email, Direccion
+        console.log("User data:", data.user); // Muestra la información del usuario en la consola
       } catch (e) {
         console.log("Error cargando perfil:", e?.response?.data || e.message);
       } finally {
@@ -50,13 +51,19 @@ export default function PerfilScreen({ navigation, baseUrl = process.env.EXPO_PU
     );
   }
 
+  // Construir la URL de la foto
+  const imageUrl = user.Foto
+    ? `${baseUrl.replace(/\/$/, "")}/backend/uploads/${user.Foto}`
+    : "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+  // Verificar la URL en la consola
+  console.log("Image URL:", imageUrl);
+
   return (
     <View style={styles.container}>
       <Image
         source={{
-          uri:
-            user.Imagen ||
-            "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+          uri: imageUrl, // Aquí usas la URL que acabamos de formar
         }}
         style={styles.imagen}
       />

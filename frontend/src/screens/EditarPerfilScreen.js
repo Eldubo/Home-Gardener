@@ -1,11 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
-import { createAPI } from '../services/api';
-import { useAuth } from '../contexts/AuthContext';
-
-export default function EditarPerfilScreen({ navigation, baseUrl = process.env.EXPO_PUBLIC_API_URL }) {
-  const api = useMemo(() => createAPI(baseUrl), [baseUrl]);
-  const { user, updateUser } = useAuth();
+import React, { useEffect, useState } from 'react';
+import { View, TextInput, Button, Text, StyleSheet, Alert, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
+import { Ionicons } from '@expo/vector-icons';
 
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
@@ -13,6 +10,7 @@ export default function EditarPerfilScreen({ navigation, baseUrl = process.env.E
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [foto, setFoto] = useState(null);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -42,6 +40,18 @@ export default function EditarPerfilScreen({ navigation, baseUrl = process.env.E
     loadUser();
   }, [api, user]);
 
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+    if (!result.canceled) {
+      setFoto(result.assets[0].uri);
+    }
+  };
+
   const handleUpdate = async () => {
     setError(null);
 
@@ -52,18 +62,35 @@ export default function EditarPerfilScreen({ navigation, baseUrl = process.env.E
 
     try {
       setUpdating(true);
-      const { data } = await api.put('/api/auth/profile', {
-        nombre: nombre.trim(),
-        email: email.trim().toLowerCase(),
-        direccion: direccion.trim(),
+      const formData = new FormData();
+      formData.append('nombre', nombre.trim());
+      formData.append('email', email.trim().toLowerCase());
+      formData.append('direccion', direccion.trim());
+      if (foto) {
+        formData.append('Foto', {
+          uri: foto,
+          name: 'foto.jpg',
+          type: 'image/jpeg',
+        });
+      }
+
+      const token = await AsyncStorage.getItem('token');
+      const response = await fetch(`${baseUrl}/api/auth/updateProfile`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
       });
 
-      const updated = data?.user;
-      if (updated) {
-        await updateUser(updated);
+      const data = await response.json();
+
+      if (response.ok) {
         Alert.alert('Éxito', 'Tus datos fueron actualizados correctamente');
         navigation.goBack();
       } else {
+        console.error('Error actualizando datos:', data);
         setError('No se pudo actualizar la información');
       }
     } catch (e) {
@@ -86,6 +113,17 @@ export default function EditarPerfilScreen({ navigation, baseUrl = process.env.E
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Editar Perfil</Text>
+
+      <TouchableOpacity onPress={pickImage} style={{ alignItems: 'center', marginBottom: 10 }}>
+        {foto ? (
+          <Image source={{ uri: foto }} style={{ width: 80, height: 80, borderRadius: 40 }} />
+        ) : (
+          <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: '#ccc', justifyContent: 'center', alignItems: 'center' }}>
+            <Ionicons name="camera" size={32} color="#555" />
+          </View>
+        )}
+        <Text style={{ color: '#555', marginTop: 5 }}>Cambiar foto</Text>
+      </TouchableOpacity>
 
       <TextInput
         placeholder="Nombre"
