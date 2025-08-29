@@ -124,7 +124,12 @@ router.post('/actualizarFoto', authenticateToken, async (req, res) => {
   }
 
   try {
-    const checkQuery = `SELECT "ID" FROM "Planta" WHERE "ID" = $1 AND "IdUsuario" = $2`;
+    const checkQuery = `
+      SELECT "P"."ID"
+      FROM "Planta" AS "P"
+      INNER JOIN "Ambiente" AS "A" ON "P"."IdAmbiente" = "A"."ID"
+      WHERE "P"."ID" = $1 AND "A"."IdUsuario" = $2
+    `;
     const checkResult = await pool.query(checkQuery, [idPlanta, req.user.ID]);
     if (checkResult.rows.length === 0) {
       return res.status(StatusCodes.FORBIDDEN).json({ message: 'No tienes permiso para actualizar esta planta' });

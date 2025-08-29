@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createAPI } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
-export default function EditarPerfilScreen({ navigation }) {
-  const [userData, setUserData] = useState(null);
+export default function EditarPerfilScreen({ navigation, baseUrl = process.env.EXPO_PUBLIC_API_URL }) {
+  const api = useMemo(() => createAPI(baseUrl), [baseUrl]);
+  const { user, updateUser } = useAuth();
+
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [direccion, setDireccion] = useState('');
@@ -13,37 +16,31 @@ export default function EditarPerfilScreen({ navigation }) {
 
   useEffect(() => {
     const loadUser = async () => {
+      setError(null);
       try {
-        const userId = await AsyncStorage.getItem('user_id');
-        if (userId) {
-          const { data, error } = await supabase
-            .from('Usuario')
-            .select('*')
-            .eq('ID', userId)
-            .single();
-
-          if (error) {
-            console.error('Error al cargar usuario:', error);
-            setError('No se pudo cargar la información del usuario');
-          } else {
-            setUserData(data);
-            setNombre(data.nombre || '');
-            setEmail(data.email || '');
-            setDireccion(data.direccion || '');
-          }
-        } else {
-          setError('ID de usuario no encontrado.');
+        // Si ya tenemos el usuario en contexto, lo usamos; si no, pedimos al backend
+        if (user) {
+          setNombre(user.Nombre || '');
+          setEmail(user.Email || '');
+          setDireccion(user.Direccion || '');
+          setLoading(false);
+          return;
         }
-      } catch (err) {
-        console.error('Error accediendo a AsyncStorage:', err);
-        setError('Error interno al acceder al almacenamiento');
+
+        const { data } = await api.get('/api/auth/profile');
+        const u = data?.user;
+        setNombre(u?.Nombre || '');
+        setEmail(u?.Email || '');
+        setDireccion(u?.Direccion || '');
+      } catch (e) {
+        setError(e?.response?.data?.message || 'No se pudo cargar la información del usuario');
       } finally {
         setLoading(false);
       }
     };
 
     loadUser();
-  }, []);
+  }, [api, user]);
 
   const handleUpdate = async () => {
     setError(null);
@@ -55,31 +52,23 @@ export default function EditarPerfilScreen({ navigation }) {
 
     try {
       setUpdating(true);
-      const userId = await AsyncStorage.getItem('user_id');
-      if (!userId) {
-        setError('No se encontró el ID de usuario.');
-        return;
-      }
+      const { data } = await api.put('/api/auth/profile', {
+        nombre: nombre.trim(),
+        email: email.trim().toLowerCase(),
+        direccion: direccion.trim(),
+      });
 
-      const { error: updateError } = await supabase
-        .from('Usuario')
-        .update({
-          Nombre: nombre.trim(),
-          Email: email.trim().toLowerCase(),
-          Direccion: direccion.trim(),
-        })
-        .eq('ID', userId);
-
-      if (updateError) {
-        console.error('Error actualizando datos:', updateError);
-        setError('No se pudo actualizar la información');
-      } else {
+      const updated = data?.user;
+      if (updated) {
+        await updateUser(updated);
         Alert.alert('Éxito', 'Tus datos fueron actualizados correctamente');
         navigation.goBack();
+      } else {
+        setError('No se pudo actualizar la información');
       }
-    } catch (err) {
-      console.error('Error general en la actualización:', err);
-      setError('Ocurrió un error inesperado');
+    } catch (e) {
+      const msg = e?.response?.data?.message || e.message || 'Ocurrió un error inesperado';
+      setError(msg);
     } finally {
       setUpdating(false);
     }

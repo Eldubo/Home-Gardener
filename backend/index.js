@@ -11,11 +11,14 @@ import SensoresRoutes from './src/controllers/sensores-controller.js';
 import AmbienteRoutes from './src/controllers/ambiente-controller.js';
 
 // Validar variables de entorno críticas
-const requiredEnvVars = ['JWT_SECRET', 'DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'PORT'];
-const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+const hasDbUrl = !!process.env.DB_URL;
+const hasDbParts = !!(process.env.DB_HOST && process.env.DB_USER && process.env.DB_PASSWORD && process.env.DB_NAME);
+const missing = [];
+if (!process.env.JWT_SECRET) missing.push('JWT_SECRET');
+if (!hasDbUrl && !hasDbParts) missing.push('DB_URL o (DB_HOST, DB_USER, DB_PASSWORD, DB_NAME)');
 
-if (missingEnvVars.length > 0) {
-  console.error('❌ Variables de entorno faltantes:', missingEnvVars);
+if (missing.length > 0) {
+  console.error('❌ Variables de entorno faltantes:', missing);
   console.error('Por favor, configura las variables de entorno requeridas en tu archivo .env');
   process.exit(1);
 }
