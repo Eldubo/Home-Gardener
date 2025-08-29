@@ -18,10 +18,6 @@ export const uploadFile = (fieldName) => {
 
   const fileFilter = (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
-      // Check file size (limit to 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        return cb(new Error('El tamaño de la imagen no debe exceder los 5MB'));
-      }
       cb(null, true);
     } else {
       cb(new Error('Solo se permiten imágenes'));

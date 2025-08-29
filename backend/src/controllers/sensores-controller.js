@@ -18,7 +18,12 @@ router.get('/datosSensores', authenticateToken, async (req, res) => {
 
   try {
     const idUsuario = req.user.ID;
-    const checkQuery = 'SELECT "ID" FROM "Planta" WHERE "ID" = $1 AND "IdUsuario" = $2';
+    const checkQuery = `
+      SELECT P."ID"
+      FROM "Planta" P
+      INNER JOIN "Ambiente" A ON P."IdAmbiente" = A."ID"
+      WHERE P."ID" = $1 AND A."IdUsuario" = $2
+    `;
     const checkResult = await pool.query(checkQuery, [idPlanta, idUsuario]);
     if (checkResult.rows.length === 0) {
       return res.status(StatusCodes.FORBIDDEN).json({ message: 'No tienes permiso para consultar esta planta' });
@@ -51,7 +56,12 @@ router.get('/ultRiego', authenticateToken, async (req, res) => {
 
   try {
     const idUsuario = req.user.ID;
-    const checkQuery = 'SELECT "ID" FROM "Planta" WHERE "ID" = $1 AND "IdUsuario" = $2';
+    const checkQuery = `
+      SELECT P."ID"
+      FROM "Planta" P
+      INNER JOIN "Ambiente" A ON P."IdAmbiente" = A."ID"
+      WHERE P."ID" = $1 AND A."IdUsuario" = $2
+    `;
     const checkResult = await pool.query(checkQuery, [idPlanta, idUsuario]);
     if (checkResult.rows.length === 0) {
       return res.status(StatusCodes.FORBIDDEN).json({ message: 'No tienes permiso para consultar esta planta' });
@@ -96,9 +106,9 @@ router.put('/conectarModulo', authenticateToken, async (req, res) => {
       SELECT "A"."IdUsuario", "P"."Nombre" 
       FROM "Ambiente" A 
       INNER JOIN "Planta" P ON "A"."ID" = "P"."IdAmbiente" 
-      WHERE "P"."ID" = $1
+      WHERE "P"."ID" = $1 AND "A"."IdUsuario" = $2
     `;
-    checkResult = await pool.query(checkQuery, [idPlanta]);
+    checkResult = await pool.query(checkQuery, [idPlanta, req.user.ID]);
     if (checkResult.rows.length === 0) {
       return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'No tienes permisos para actualizar esta planta' });
     }
@@ -134,7 +144,12 @@ router.delete('/desconectarModulo', authenticateToken, async (req, res) => {
 
   try {
     const idUsuario = req.user.ID;
-    const checkQuery = 'SELECT "ID" FROM "Planta" WHERE "ID" = $1 AND "IdUsuario" = $2';
+    const checkQuery = `
+      SELECT P."ID"
+      FROM "Planta" P
+      INNER JOIN "Ambiente" A ON P."IdAmbiente" = A."ID"
+      WHERE P."ID" = $1 AND A."IdUsuario" = $2
+    `;
     const checkResult = await pool.query(checkQuery, [idPlanta, idUsuario]);
     if (checkResult.rows.length === 0) {
       return res.status(StatusCodes.FORBIDDEN).json({ message: 'No tienes permiso para modificar esta planta' });
@@ -165,7 +180,12 @@ router.post('/subirDatosPlanta', authenticateToken, async (req, res) => {
 
   try {
     const idUsuario = req.user.ID;
-    const checkQuery = 'SELECT "ID" FROM "Planta" WHERE "ID" = $1 AND "IdUsuario" = $2';
+    const checkQuery = `
+      SELECT P."ID"
+      FROM "Planta" P
+      INNER JOIN "Ambiente" A ON P."IdAmbiente" = A."ID"
+      WHERE P."ID" = $1 AND A."IdUsuario" = $2
+    `;
     const checkResult = await pool.query(checkQuery, [idPlanta, idUsuario]);
     if (checkResult.rows.length === 0) {
       return res.status(StatusCodes.FORBIDDEN).json({ message: 'No tienes permiso para modificar esta planta' });
@@ -213,7 +233,12 @@ router.post('/registrarUltRiego', authenticateToken, async (req, res) => {
 
   try {
     const idUsuario = req.user.ID;
-    const checkQuery = 'SELECT "ID" FROM "Planta" WHERE "ID" = $1 AND "IdUsuario" = $2';
+    const checkQuery = `
+      SELECT P."ID"
+      FROM "Planta" P
+      INNER JOIN "Ambiente" A ON P."IdAmbiente" = A."ID"
+      WHERE P."ID" = $1 AND A."IdUsuario" = $2
+    `;
     const checkResult = await pool.query(checkQuery, [idPlanta, idUsuario]);
     if (checkResult.rows.length === 0) {
       return res.status(StatusCodes.FORBIDDEN).json({ message: 'No tienes permiso para modificar esta planta' });
