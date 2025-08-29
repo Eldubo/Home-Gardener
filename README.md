@@ -168,6 +168,8 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 ## 👥 Equipo
 
 - **Desarrollador Principal**: [Eldubo](https://github.com/Eldubo)
+- **Froentend developer**: [tomi954](https://github.com/tomi954)
+- **Proyect leader**: [Lola-Nieto](https://github.com/Lola-Nieto)
 
 ## 📞 Soporte
 
